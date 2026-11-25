@@ -1,3 +1,4 @@
+import QCYKit
 import SwiftUI
 
 /// App separado do fone QCY (ADR 0005): janela única, sem menu de barra, widget nem histórico (T12, #135).

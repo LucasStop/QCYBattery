@@ -1,0 +1,51 @@
+name: QCYBattery
+options:
+  bundleIdPrefix: com.lucasstop
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    CODE_SIGN_IDENTITY: "-"
+    DEVELOPMENT_TEAM: ""
+packages:
+  QCYKit:
+    url: https://github.com/LucasStop/QCYKit
+    from: 0.1.0
+targets:
+  QCYBattery:
+    type: application
+    platform: macOS
+    sources: [QCYBattery]
+    dependencies:
+      - package: QCYKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lucasstop.QCYBattery
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: QCY
+        INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription: "Para ler a bateria do fone QCY e ajustar cancelamento de ruído, LDAC e modo jogo."
+        CODE_SIGN_ENTITLEMENTS: QCYBattery/QCYBattery.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_HARDENED_RUNTIME: YES
+  QCYBatteryTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [QCYBatteryTests]
+    dependencies:
+      - target: QCYBattery
+      - package: QCYKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lucasstop.QCYBatteryTests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  QCYBattery:
+    build:
+      targets: {QCYBattery: all}
+    test:
+      targets: [QCYBatteryTests]

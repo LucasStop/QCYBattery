@@ -1,5 +1,6 @@
 #if DEBUG
 import Foundation
+import QCYKit
 
 /// Link de mentira só para o canvas do Xcode: não fala com o fone, devolve o estado que o preview injeta.
 final class PreviewQCYLink: QCYLink, @unchecked Sendable {
