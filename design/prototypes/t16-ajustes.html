@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>T16 · Aba Ajustes</title>
+<style>
+/* Tokens do DESIGN.md (herdados do proto.css do LogiBattery), embutidos para protótipo autocontido. */
+:root{--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--r-sm:6px;--r-md:10px;--r-lg:14px;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;font-size:13px;line-height:18px}
+.theme.light{--background:#ececec;--surface:#fff;--raised:#f4f4f5;--fg:#1d1d1f;--muted:#6e6e73;--border:#d2d2d7;
+  --primary:#0a64f0;--primary-fg:#fff;--success:#1f9d55;--warning:#b7791f;--danger:#c53030;--info:#2b6cb0;--disabled:#a1a1a6;
+  --backdrop:#c9d4e6}
+.theme.dark{--background:#2a2a2d;--surface:#38383b;--raised:#1f1f21;--fg:#f5f5f7;--muted:#a1a1a6;--border:#4d4d52;
+  --primary:#3b8bff;--primary-fg:#fff;--success:#34c77b;--warning:#f2b13c;--danger:#ff6b6b;--info:#63b3ed;--disabled:#636366;
+  --backdrop:#2c3a52}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f5f7;color:#1d1d1f;padding:var(--s5)}
+h1{font-size:22px;line-height:28px;margin:0 0 var(--s1)}
+.lead{color:#6e6e73;margin:0 0 var(--s5);max-width:74ch}
+.state{margin:0 0 var(--s6)}
+.state>h2{font-size:17px;line-height:22px;margin:0 0 var(--s2)}
+.pair{display:flex;gap:var(--s5);flex-wrap:wrap}
+.theme{padding:var(--s5);border-radius:var(--r-lg);background:var(--backdrop);color:var(--fg);display:flex;align-items:flex-start;gap:var(--s4);flex-wrap:wrap;min-width:340px}
+.tag{font-size:10px;line-height:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 var(--s2)}
+.tabular{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.caption{font-size:11px;line-height:14px;color:var(--muted)}
+/* janela (468 pt) */
+.window{width:468px;background:var(--background);border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden}
+.window .tb{padding:var(--s3) var(--s4) var(--s2);border-bottom:1px solid var(--border);display:grid;gap:var(--s2)}
+.window .tb-title{font-weight:600;text-align:center;font-size:13px}
+.window .bd{padding:var(--s4);display:grid;gap:var(--s3)}
+/* barra de abas segmentada */
+.tabs{display:flex;background:var(--raised);border:1px solid var(--border);border-radius:8px;padding:2px;gap:2px}
+.tabs button{flex:1;font:inherit;font-size:12px;border:0;background:transparent;color:var(--muted);padding:4px 8px;border-radius:6px;min-height:24px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--fg);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+/* seções, grupos e linhas */
+.sec-hd{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:0 var(--s1);margin-bottom:-4px}
+.group{background:var(--surface);border-radius:var(--r-md)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding:10px var(--s4)}
+.row+.row{border-top:1px solid var(--border)}
+.row label{font-weight:500;font-size:13px}
+.row label small{display:block;color:var(--muted);font-size:11px;line-height:14px;font-weight:400;margin-top:1px}
+.row.locked{opacity:.65}
+/* controles */
+.sel{font:inherit;font-size:12px;color:var(--fg);background:var(--raised);border:1px solid var(--border);border-radius:var(--r-sm);padding:4px 8px;min-height:26px;cursor:pointer}
+.sw{appearance:none;width:38px;height:22px;border-radius:11px;background:var(--disabled);position:relative;cursor:pointer;flex:none}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .12s ease-out}
+.sw:checked{background:var(--success)}.sw:checked::after{left:18px}
+.sw:disabled{opacity:.55;cursor:not-allowed}
+@media (prefers-reduced-motion:reduce){.sw::after{transition:none}}
+.slider-wrap{display:flex;align-items:center;gap:var(--s2);width:170px}
+.slider-wrap input[type="range"]{flex:1;accent-color:var(--primary);margin:0;cursor:pointer}
+.slider-wrap span{font-size:12px;min-width:34px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+/* gravador de atalho global */
+.hotkey{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border);background:var(--raised);border-radius:var(--r-sm);padding:3px 6px 3px 10px;min-height:26px;font-size:12px;font-weight:500;color:var(--fg)}
+.hotkey.rec{border-color:var(--primary);box-shadow:0 0 0 2px rgba(10,100,240,.22);color:var(--primary);padding-right:10px}
+.hotkey .clr{border:0;background:transparent;color:var(--muted);font-size:13px;line-height:1;padding:0 2px;cursor:pointer}
+/* regras de ANC por contexto */
+.rule-r{display:flex;align-items:center;gap:var(--s2)}
+.rule-arrow{font-size:11px;color:var(--muted)}
+.btn{font:inherit;font-size:12px;border:1px solid var(--border);background:var(--surface);color:var(--fg);padding:3px 10px;border-radius:var(--r-sm);min-height:24px;cursor:pointer}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--primary);padding:4px 0;font-weight:500}
+/* limiares de bateria baixa */
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.dot.warn{background:var(--warning)}
+.dot.crit{background:var(--danger)}
+.note{max-width:82ch;margin:0 0 var(--s4);padding-left:20px}
+.note li{margin-bottom:var(--s1)}
+</style>
+</head>
+<body>
+<h1>T16 · Aba Ajustes</h1>
+<p class="lead">Aba Ajustes da janela principal com desligamento automático, volume dos avisos sonoros, detecção de uso, presença na barra de menu e no Dock (com proteção para manter pelo menos um ligado), abrir ao iniciar sessão, gravador de atalho global do ANC, regras de ANC por contexto e alertas de bateria baixa em 20% e 10% por lado. Estados: padrão, só barra de menu (Dock desligado) e gravando atalho, em claro e escuro.</p>
+
+<ul class="note">
+  <li><b>Pelo menos um ponto de entrada:</b> se "Mostrar no Dock" for desligado, "Mostrar na barra de menu" fica travado em ligado (e vice-versa), evitando que o app fique inacessível.</li>
+  <li><b>Regras de ANC por contexto:</b> alternam a cena automaticamente durante chamadas ou quando um Foco específico do macOS está ativo.</li>
+  <li><b>Alertas de bateria baixa:</b> disparam de forma independente para o lado esquerdo ou direito nos limiares de 20% (baixo) e 10% (crítico), seguindo as cores do <code>DESIGN.md</code>.</li>
+</ul>
+
+<div id="root"></div>
+
+<script>
+const S = {
+  padrao: { menubar: 1, dock: 1, recording: 0 },
+  soBarra: { menubar: 1, dock: 0, recording: 0 },
+  gravandoAtalho: { menubar: 1, dock: 1, recording: 1 }
+};
+
+const tabsBar = () => `<div class="tabs" role="tablist" aria-label="Abas do QCYBattery">
+  <button role="tab" aria-selected="false">Status</button>
+  <button role="tab" aria-selected="false">Som</button>
+  <button role="tab" aria-selected="false">Toques</button>
+  <button role="tab" aria-selected="true">Ajustes</button>
+</div>`;
+
+const sceneSelect = (val, aria) => `<select class="sel" aria-label="${aria}">
+  <option value="anc"${val === 'anc' ? ' selected' : ''}>ANC</option>
+  <option value="off"${val === 'off' ? ' selected' : ''}>Normal</option>
+  <option value="trans"${val === 'trans' ? ' selected' : ''}>Transparência</option>
+</select>`;
+
+const win = (s) => {
+  const lockMenubar = s.menubar && !s.dock;
+  const lockDock = s.dock && !s.menubar;
+  return `<div class="window">
+    <div class="tb">
+      <div class="tb-title">QCY MeloBuds Pro</div>
+      ${tabsBar()}
+    </div>
+    <div class="bd">
+      <div class="sec-hd">Fone</div>
+      <div class="group">
+        <div class="row">
+          <label>Desligamento automático<small>Desliga o fone após inatividade</small></label>
+          <select class="sel" aria-label="Desligamento automático">
+            <option>Nunca</option>
+            <option>5 min</option>
+            <option selected>15 min</option>
+            <option>30 min</option>
+            <option>60 min</option>
+          </select>
+        </div>
+        <div class="row">
+          <label>Volume dos avisos<small>Bipes de troca de modo e conexão</small></label>
+          <div class="slider-wrap">
+            <input type="range" min="0" max="100" value="60" aria-label="Volume dos avisos">
+            <span>60%</span>
+          </div>
+        </div>
+        <div class="row">
+          <label>Detecção de uso<small>Pausa a mídia ao retirar o fone da orelha</small></label>
+          <input class="sw" type="checkbox" role="switch" aria-label="Detecção de uso" checked>
+        </div>
+      </div>
+
+      <div class="sec-hd">App e atalho</div>
+      <div class="group">
+        <div class="row ${lockMenubar ? 'locked' : ''}">
+          <label>Mostrar na barra de menu<small>${lockMenubar ? 'Obrigatório enquanto o Dock estiver desligado' : 'Exibe ícone e bateria L/R no topo da tela'}</small></label>
+          <input class="sw" type="checkbox" role="switch" aria-label="Mostrar na barra de menu" ${s.menubar ? 'checked' : ''} ${lockMenubar ? 'disabled' : ''}>
+        </div>
+        <div class="row ${lockDock ? 'locked' : ''}">
+          <label>Mostrar no Dock<small>${lockDock ? 'Obrigatório enquanto a barra de menu estiver desligada' : 'Mantém o ícone do app no Dock e no Cmd+Tab'}</small></label>
+          <input class="sw" type="checkbox" role="switch" aria-label="Mostrar no Dock" ${s.dock ? 'checked' : ''} ${lockDock ? 'disabled' : ''}>
+        </div>
+        <div class="row">
+          <label>Abrir ao iniciar sessão<small>Inicia o QCYBattery automaticamente com o macOS</small></label>
+          <input class="sw" type="checkbox" role="switch" aria-label="Abrir ao iniciar sessão" checked>
+        </div>
+        <div class="row">
+          <label>Atalho global do ANC<small>Alterna ANC, Normal e Transparência em qualquer app</small></label>
+          ${s.recording
+            ? '<div class="hotkey rec" role="button" aria-label="Gravando atalho global">Pressione o atalho…</div>'
+            : '<div class="hotkey" role="button" aria-label="Atalho global do ANC: Command Shift A"><span>⌘ ⇧ A</span><button class="clr" aria-label="Limpar atalho">×</button></div>'}
+        </div>
+      </div>
+
+      <div class="sec-hd">Regras de ANC por contexto</div>
+      <div class="group">
+        <div class="row">
+          <label>Chamada em andamento<small>Volta à cena anterior ao encerrar</small></label>
+          <div class="rule-r">
+            <span class="rule-arrow" aria-hidden="true">→</span>
+            ${sceneSelect('trans', 'Cena para chamada em andamento')}
+            <input class="sw" type="checkbox" role="switch" aria-label="Ativar regra para chamada" checked>
+          </div>
+        </div>
+        <div class="row">
+          <label>Foco: Trabalho<small>Ativado pelo modo de Foco do macOS</small></label>
+          <div class="rule-r">
+            <span class="rule-arrow" aria-hidden="true">→</span>
+            ${sceneSelect('anc', 'Cena para Foco Trabalho')}
+            <input class="sw" type="checkbox" role="switch" aria-label="Ativar regra para Foco Trabalho" checked>
+          </div>
+        </div>
+        <div class="row" style="padding-top:6px;padding-bottom:6px">
+          <button class="btn ghost">+ Adicionar regra de Foco…</button>
+          <span class="caption">2 regras ativas</span>
+        </div>
+      </div>
+
+      <div class="sec-hd">Alertas de bateria baixa (por lado)</div>
+      <div class="group">
+        <div class="row">
+          <label><span class="dot warn" aria-hidden="true"></span>Aviso em 20%<small>Notifica quando o lado esquerdo ou direito atingir 20%</small></label>
+          <input class="sw" type="checkbox" role="switch" aria-label="Aviso de bateria em 20%" checked>
+        </div>
+        <div class="row">
+          <label><span class="dot crit" aria-hidden="true"></span>Crítico em 10%<small>Notifica quando o lado esquerdo ou direito atingir 10%</small></label>
+          <input class="sw" type="checkbox" role="switch" aria-label="Aviso crítico de bateria em 10%" checked>
+        </div>
+      </div>
+    </div>
+  </div>`;
+};
+
+const states = [
+  ['padrao', 'Padrão', 'Barra de menu e Dock ativos, atalho global definido, regras de contexto e alertas 20% / 10% ligados'],
+  ['soBarra', 'Só barra de menu (Dock desligado)', 'Ao desligar o Dock, "Mostrar na barra de menu" fica travado em ligado (estado desabilitado)'],
+  ['gravandoAtalho', 'Gravando atalho global', 'Campo de atalho global em modo de captura aguardando combinação de teclas']
+];
+
+document.getElementById('root').innerHTML = states.map(([k, h, sub]) =>
+  `<section class="state"><h2>${h}</h2><p class="caption" style="margin:0 0 12px">${sub}</p><div class="pair">${win(S[k])}</div></section>`
+).join('');
+
+document.querySelectorAll('.pair').forEach(p => {
+  const html = p.innerHTML;
+  p.innerHTML = ['light', 'dark'].map(t =>
+    `<div class="theme ${t}"><div style="width:100%"><p class="tag">${t === 'light' ? 'Claro' : 'Escuro'}</p>${html}</div></div>`
+  ).join('');
+});
+</script>
+</body>
+</html>

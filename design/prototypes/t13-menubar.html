@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>T13 · Barra de menu e popover</title>
+<style>
+/* Tokens do DESIGN.md (herdados do proto.css do LogiBattery), embutidos para protótipo autocontido. */
+:root{--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--r-sm:6px;--r-md:10px;--r-lg:14px;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;font-size:13px;line-height:18px}
+.theme.light{--background:#ececec;--surface:#fff;--raised:#f4f4f5;--fg:#1d1d1f;--muted:#6e6e73;--border:#d2d2d7;
+  --primary:#0a64f0;--primary-fg:#fff;--success:#1f9d55;--warning:#b7791f;--danger:#c53030;--info:#2b6cb0;--disabled:#a1a1a6;
+  --backdrop:#c9d4e6}
+.theme.dark{--background:#2a2a2d;--surface:#38383b;--raised:#1f1f21;--fg:#f5f5f7;--muted:#a1a1a6;--border:#4d4d52;
+  --primary:#3b8bff;--primary-fg:#fff;--success:#34c77b;--warning:#f2b13c;--danger:#ff6b6b;--info:#63b3ed;--disabled:#636366;
+  --backdrop:#2c3a52}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f5f7;color:#1d1d1f;padding:var(--s5)}
+h1{font-size:22px;line-height:28px;margin:0 0 var(--s1)}
+.lead{color:#6e6e73;margin:0 0 var(--s5);max-width:74ch}
+.state{margin:0 0 var(--s6)}
+.state>h2{font-size:17px;line-height:22px;margin:0 0 var(--s2)}
+.pair{display:flex;gap:var(--s5);flex-wrap:wrap}
+.theme{padding:var(--s5);border-radius:var(--r-lg);background:var(--backdrop);color:var(--fg);display:flex;align-items:flex-start;gap:var(--s4);flex-wrap:wrap;min-width:340px}
+.tag{font-size:10px;line-height:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 var(--s2)}
+.tabular{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.caption{font-size:11px;line-height:14px;color:var(--muted)}
+/* níveis (DESIGN.md: >=20% normal, <20% baixo, <10% crítico) */
+.ok{--lvl:var(--success)}.low{--lvl:var(--warning)}.crit{--lvl:var(--danger)}.chg{--lvl:var(--info)}.none{--lvl:var(--disabled)}
+.badge{font-size:11px;line-height:14px;color:var(--lvl);font-weight:500}
+.none .badge{color:var(--muted)}
+/* barra de menu + âncora do popover */
+.mb-stack{display:flex;flex-direction:column;align-items:flex-end;gap:var(--s2);width:320px}
+.menubar-strip{width:100%;display:flex;justify-content:flex-end;align-items:center;padding:var(--s1) var(--s2);border-radius:var(--r-sm);background:var(--surface);border:1px solid var(--border)}
+.menubar{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:5px;font-size:12px;line-height:16px;font-weight:500;color:var(--fg);background:var(--raised)}
+.menubar.active{background:var(--primary);color:var(--primary-fg)}
+.menubar.active .mb-sep{opacity:.65}
+.menubar svg{width:15px;height:15px;flex:none}
+.mb-sep{opacity:.45;margin:0 1px}
+/* popover */
+.popover{width:320px;background:var(--background);border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden}
+.popover .hd{display:flex;justify-content:space-between;align-items:center;gap:var(--s2);padding:var(--s3) var(--s4);border-bottom:1px solid var(--border)}
+.popover .hd-left{display:flex;align-items:center;gap:var(--s2);min-width:0}
+.popover .hd-ic{width:28px;height:28px;border-radius:7px;background:var(--raised);display:grid;place-items:center;color:var(--fg);flex:none}
+.popover .hd b{display:block;font-size:13px;line-height:16px}
+.popover .bd{padding:var(--s3);display:grid;gap:var(--s3)}
+.popover .ft{display:flex;justify-content:space-between;align-items:center;padding:var(--s2) var(--s3);border-top:1px solid var(--border);background:var(--surface)}
+/* grupos e linhas (iguais ao T12) */
+.group{background:var(--surface);border-radius:var(--r-md)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding:var(--s3)}
+.row+.row{border-top:1px solid var(--border)}
+.row label{font-size:12px;font-weight:500}
+.row label small{display:block;color:var(--muted);font-size:11px;line-height:14px;font-weight:400}
+.row.stack{flex-direction:column;align-items:stretch;gap:var(--s2)}
+/* anéis de bateria (T12) */
+.bat{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s2);padding:var(--s3) var(--s3) var(--s2)}
+.bat .slot{display:grid;justify-items:center;gap:6px}
+.ring{position:relative;width:54px;aspect-ratio:1;border-radius:50%;background:conic-gradient(var(--lvl,var(--border)) calc(var(--p,0)*1%),var(--border) 0)}
+.ring::before{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--surface)}
+.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:1px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--fg)}
+.ring .num svg{width:10px;height:10px;color:var(--info)}
+.none .ring .num{font-size:11px;color:var(--muted)}
+.bat .lbl{font-size:11px;line-height:14px;color:var(--muted);text-align:center}
+.bat .lbl b{display:block;font-size:12px;line-height:15px;color:var(--fg);font-weight:500}
+.foot{padding:0 var(--s3) var(--s2);text-align:center;font-size:11px;color:var(--muted)}
+/* seletor ANC de 3 botões (DESIGN.md) */
+.seg{display:flex;background:var(--raised);border-radius:8px;padding:2px;gap:2px}
+.seg button{flex:1;font:inherit;font-size:12px;border:0;background:transparent;color:var(--fg);padding:4px 6px;border-radius:6px;min-height:24px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--primary);color:var(--primary-fg);font-weight:600}
+/* menu nativo de preset */
+.sel{font:inherit;font-size:12px;color:var(--fg);background:var(--raised);border:1px solid var(--border);border-radius:var(--r-sm);padding:3px 24px 3px 8px;min-height:24px;cursor:pointer}
+/* botões, banners, estados */
+.btn{font:inherit;font-size:12px;border:1px solid var(--border);background:var(--surface);color:var(--fg);padding:4px 10px;border-radius:var(--r-sm);min-height:24px;cursor:pointer}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--primary);padding:4px 6px;font-weight:500}
+.btn.muted-btn{border-color:transparent;background:transparent;color:var(--muted);padding:4px 6px}
+.dis{opacity:.55}
+.dis .seg button,.dis .sel{cursor:default;pointer-events:none}
+.banner{display:flex;gap:var(--s2);padding:var(--s2) var(--s3);border-radius:var(--r-md);background:var(--surface);border-left:3px solid var(--danger);font-size:12px}
+.banner.info{border-left-color:var(--info)}
+.banner.warn{border-left-color:var(--warning)}
+.banner b{display:block;font-size:12px}
+.banner small{display:block;color:var(--muted);font-size:11px;line-height:14px;margin-top:2px}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-1px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none;border-top-color:var(--border);border-left-color:var(--primary)}}
+.note{max-width:82ch;margin:0 0 var(--s4);padding-left:20px}
+.note li{margin-bottom:var(--s1)}
+</style>
+</head>
+<body>
+<h1>T13 · Barra de menu e popover</h1>
+<p class="lead">Item fixo na barra de menu do macOS (ícone do fone + porcentagens L/R) e seu popover rápido com anéis de bateria L/R, seletor de ANC (3 botões), menu de efeito de som e botão para abrir a janela principal. Estados: padrão, carregando, sem conexão, aplicando e erro de escrita, em claro e escuro.</p>
+
+<ul class="note">
+  <li><b>Item da barra de menu:</b> mostra o símbolo do fone acompanhado de <code>L</code> e <code>R</code> com algarismos tabulares; exibe o raio quando em carga e <code>—</code> quando desconectado.</li>
+  <li><b>Popover (320 pt):</b> concentra apenas leitura rápida e os dois ajustes mais frequentes (ANC e efeito de som). Configurações completas e gestos ficam na janela principal via "Abrir QCYBattery…".</li>
+  <li><b>Escrita otimista:</b> igual à T12, os controles ficam desabilitados durante o envio até o eco do fone; em erro, o estado anterior é restaurado.</li>
+</ul>
+
+<div id="root"></div>
+
+<script>
+const SVG_HP = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13v-3a7 7 0 0 1 14 0v3"/><rect x="2.5" y="12" width="3.5" height="5" rx="1"/><rect x="14" y="12" width="3.5" height="5" rx="1"/></svg>';
+const SVG_BOLT = '<svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M11 2 4 11h5l-1 7 7-9h-5z"/></svg>';
+
+const S = {
+  padrao: { conn: 1, l: 90, r: 91, anc: 'trans', preset: 'Padrao' },
+  carregando: { conn: 1, l: 84, r: 86, charging: 1, anc: 'off', preset: 'Espacial' },
+  semConexao: { conn: 0, anc: 'trans', preset: 'Padrao' },
+  aplicando: { conn: 1, l: 90, r: 91, anc: 'anc', preset: 'Padrao', pending: 1 },
+  erroEscrita: { conn: 1, l: 90, r: 91, anc: 'trans', preset: 'Padrao', error: 1 }
+};
+
+const level = (p, chg) => p == null ? 'none' : chg ? 'chg' : p < 10 ? 'crit' : p < 20 ? 'low' : 'ok';
+
+const menubarItem = (s) => {
+  const txt = !s.conn
+    ? '<span class="tabular">L — <span class="mb-sep">·</span> R —</span>'
+    : `<span class="tabular">${s.charging ? SVG_BOLT : ''}L ${s.l}% <span class="mb-sep">·</span> R ${s.r}%</span>`;
+  return `<div class="menubar-strip" aria-label="Barra de menu do macOS">
+    <div class="menubar active" role="button" aria-expanded="true" aria-label="QCYBattery na barra de menu">${SVG_HP}${txt}</div>
+  </div>`;
+};
+
+const batSlot = (s, name, p) => {
+  if (!s.conn) {
+    return `<div class="slot none" role="group" aria-label="${name}: sem conexão">
+      <div class="ring" style="--p:0" aria-hidden="true"><span class="num">—</span></div>
+      <span class="lbl"><b>${name}</b>Sem conexão</span></div>`;
+  }
+  const cls = level(p, s.charging);
+  const sub = s.charging ? 'Carregando' : (p < 10 ? 'Crítica' : p < 20 ? 'Baixa' : 'Bateria');
+  return `<div class="slot ${cls}" role="group" aria-label="${name}: ${p}%${s.charging ? ', carregando' : ''}">
+    <div class="ring" style="--p:${p}" aria-hidden="true"><span class="num">${s.charging ? SVG_BOLT : ''}${p}%</span></div>
+    <span class="lbl"><b>${name}</b>${sub}</span></div>`;
+};
+
+const banner = (s) => {
+  if (s.error) {
+    return `<div class="banner" role="alert"><div><b>O fone não respondeu</b><small>O ajuste anterior foi mantido.</small><div style="margin-top:6px"><button class="btn">Tentar de novo</button></div></div></div>`;
+  }
+  if (s.pending) {
+    return `<div class="banner info" role="status"><div><b><span class="spin" aria-hidden="true"></span>Aplicando no fone…</b><small>Aguardando confirmação do eco.</small></div></div>`;
+  }
+  if (!s.conn) {
+    return `<div class="banner warn" role="status"><div><b>Sem conexão</b><small>Aproxime o fone do Mac para reconectar.</small><div style="margin-top:6px"><button class="btn">Procurar de novo</button></div></div></div>`;
+  }
+  return '';
+};
+
+const presets = [
+  ['Espacial', 'Espacial'],
+  ['Padrao', 'Padrão'],
+  ['Pop', 'Pop'],
+  ['Graves', 'Graves pesados']
+];
+
+const popover = (s) => {
+  const off = !s.conn || s.pending;
+  const badgeCls = !s.conn ? 'none' : s.charging ? 'chg' : 'ok';
+  const badgeTxt = !s.conn ? 'Sem conexão' : s.charging ? 'Carregando' : 'Conectado';
+  const opts = presets.map(([v, l]) => `<option value="${v}"${s.preset === v ? ' selected' : ''}>${l}</option>`).join('');
+  return `<div class="mb-stack">
+    ${menubarItem(s)}
+    <div class="popover" role="dialog" aria-label="Popover QCYBattery">
+      <div class="hd">
+        <div class="hd-left">
+          <span class="hd-ic">${SVG_HP}</span>
+          <div><b>MeloBuds Pro</b><span class="caption">${s.conn ? 'Bluetooth LE' : 'Desconectado'}</span></div>
+        </div>
+        <span class="badge ${badgeCls}">${badgeTxt}</span>
+      </div>
+      <div class="bd">
+        <div class="group">
+          <div class="bat">${batSlot(s, 'Esquerdo', s.l)}${batSlot(s, 'Direito', s.r)}</div>
+          <div class="foot">${s.conn ? (s.charging ? 'No estojo com tampa aberta' : 'Atualizado agora') : 'Última leitura há 12 min'}</div>
+        </div>
+        ${banner(s)}
+        <div class="group ${off ? 'dis' : ''}">
+          <div class="row stack">
+            <label>Cancelamento de ruído</label>
+            <div class="seg" role="group" aria-label="Cancelamento de ruído">
+              <button aria-pressed="${s.anc === 'anc'}" ${off ? 'tabindex="-1"' : ''}>ANC</button>
+              <button aria-pressed="${s.anc === 'off'}" ${off ? 'tabindex="-1"' : ''}>Normal</button>
+              <button aria-pressed="${s.anc === 'trans'}" ${off ? 'tabindex="-1"' : ''}>Transparência</button>
+            </div>
+          </div>
+          <div class="row">
+            <label for="preset-${s.preset}">Efeito de som</label>
+            <select class="sel" aria-label="Efeito de som" ${off ? 'disabled tabindex="-1"' : ''}>${opts}</select>
+          </div>
+        </div>
+      </div>
+      <div class="ft">
+        <button class="btn ghost">Abrir QCYBattery…</button>
+        <button class="btn muted-btn">Encerrar</button>
+      </div>
+    </div>
+  </div>`;
+};
+
+const states = [
+  ['padrao', 'Padrão (conectado)', 'Bateria L/R normal, Transparência ativa e menu de efeito de som disponível'],
+  ['carregando', 'Carregando', 'Fones em carga no estojo com tampa aberta; raio no item da barra e nos anéis'],
+  ['semConexao', 'Sem conexão', 'Item da barra mostra traços; controles desabilitados com ação de reconexão'],
+  ['aplicando', 'Aplicando', 'Cena ANC enviada ao fone; controles travados aguardando confirmação'],
+  ['erroEscrita', 'Erro de escrita', 'Sem eco do fone; ajuste anterior preservado com opção de tentar novamente']
+];
+
+document.getElementById('root').innerHTML = states.map(([k, h, sub]) =>
+  `<section class="state"><h2>${h}</h2><p class="caption" style="margin:0 0 12px">${sub}</p><div class="pair">${popover(S[k])}</div></section>`
+).join('');
+
+document.querySelectorAll('.pair').forEach(p => {
+  const html = p.innerHTML;
+  p.innerHTML = ['light', 'dark'].map(t =>
+    `<div class="theme ${t}"><div style="width:100%"><p class="tag">${t === 'light' ? 'Claro' : 'Escuro'}</p>${html}</div></div>`
+  ).join('');
+});
+</script>
+</body>
+</html>
