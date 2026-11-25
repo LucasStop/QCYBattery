@@ -7,8 +7,8 @@ options:
 settings:
   base:
     SWIFT_VERSION: "6.0"
-    MARKETING_VERSION: "0.7.0"
-    CURRENT_PROJECT_VERSION: "7"
+    MARKETING_VERSION: "0.8.0"
+    CURRENT_PROJECT_VERSION: "8"
     CODE_SIGN_STYLE: Automatic
     CODE_SIGN_IDENTITY: "-"
     DEVELOPMENT_TEAM: ""
@@ -29,6 +29,7 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: QCY
         INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription: "Para ler a bateria do fone QCY e ajustar cancelamento de ruído, LDAC e modo jogo."
+        INFOPLIST_KEY_NSAppleEventsUsageDescription: "Para executar ações AppleScript configuradas por você nas macros do fone."
         CODE_SIGN_ENTITLEMENTS: QCYBattery/QCYBattery.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ENABLE_HARDENED_RUNTIME: YES

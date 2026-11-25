@@ -1201,6 +1201,166 @@
         }
       }
     },
+    "qcy.macro.error.accessibilityRequired": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permissão de Acessibilidade necessária para enviar atalhos de teclado"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accessibility permission is required to send keyboard shortcuts"
+          }
+        }
+      }
+    },
+    "qcy.macro.error.duplicateTrigger": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Já existe uma macro associada a este comando de mídia"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another macro is already assigned to this media command"
+          }
+        }
+      }
+    },
+    "qcy.macro.error.emptyScript": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O script da macro está vazio"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The macro script is empty"
+          }
+        }
+      }
+    },
+    "qcy.macro.error.invalidTarget": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O destino configurado na macro é inválido"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The configured macro target is invalid"
+          }
+        }
+      }
+    },
+    "qcy.macro.error.keyEventFailed": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível criar o evento de teclado"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not create the keyboard event"
+          }
+        }
+      }
+    },
+    "qcy.macro.error.launchFailed": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível iniciar a ação da macro"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not start the macro action"
+          }
+        }
+      }
+    },
+    "qcy.macro.error.openFailed": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível abrir o aplicativo ou URL configurado"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not open the configured application or URL"
+          }
+        }
+      }
+    },
+    "qcy.macro.error.persistenceFailed": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível gravar as macros no disco"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not save macros to disk"
+          }
+        }
+      }
+    },
+    "qcy.macro.error.processFailed": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A execução da macro terminou com erro"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The macro execution exited with an error"
+          }
+        }
+      }
+    },
+    "qcy.macro.error.timedOut": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A execução da macro excedeu o tempo limite"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The macro execution timed out"
+          }
+        }
+      }
+    },
     "qcy.menubar.open": {
       "localizations": {
         "pt-BR": {
