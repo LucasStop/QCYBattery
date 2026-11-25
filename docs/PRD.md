@@ -21,7 +21,7 @@ O macOS mostra um número só de bateria para o QCY MeloBuds Pro, às vezes erra
 
 ## Questões em aberto
 - Gestos suportados: ainda será medido no firmware (issue no QCYKit) quais gestos de toque o QCY MeloBuds Pro aceita para remapeamento.
-- App Sandbox: executar macros no Mac (script shell/AppleScript, `CGEvent` e `shortcuts run`) exige sair do App Sandbox; a decisão será registrada em ADR antes da implementação (sandbox permanece ativo por enquanto).
+- App Sandbox: executar macros no Mac (script shell/AppleScript, `CGEvent` e `shortcuts run`) exige sair do App Sandbox; proposta em [docs/adr/0001-sair-do-app-sandbox.md](adr/0001-sair-do-app-sandbox.md) (sandbox permanece ativo até o PR que implementa as macros).
 
 ## Fora de escopo
 - Bateria do estojo: o firmware 2.0.6 não expõe. O terceiro anel entra se algum firmware reportar.
