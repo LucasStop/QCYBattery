@@ -2,6 +2,12 @@
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), em português, uma seção por versão publicada. Cada PR `feat` ou `fix` traz a própria seção, com o que mudou e por quê; os demais tipos não entram. Seções: Adicionado, Alterado, Corrigido, Removido.
 
+## 0.8.0 - 2026-11-25
+
+### Adicionado
+
+- Motor de macros no Mac: um comando de mídia vindo do fone pode disparar um atalho de teclado, um Atalho do app Atalhos, abrir um app ou URL, ou rodar um script shell ou AppleScript. Ainda não há tela para criar macros (vem no próximo PR). Para isso o app saiu do App Sandbox (ADR 0001), pois script, teclas e `shortcuts` não rodam dentro dele; o hardened runtime continua ligado. O app só executa o que você configurar, e o texto de script, argumentos e saída nunca vão para log.
+
 ## 0.7.0 - 2026-11-25
 
 ### Adicionado
