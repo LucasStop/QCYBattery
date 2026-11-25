@@ -1,5 +1,7 @@
 # Arquitetura — QCYBattery
 
+Status: rascunho, aguardando aprovação do Lucas
+
 | Parte | Faz | Código |
 |---|---|---|
 | Protocolo e cliente BLE | Advertising `0x521C`, canal GATT `A001`, estado acumulado, escrita | pacote [QCYKit](https://github.com/LucasStop/QCYKit) (`QCYClient`, `QCYState`, `QCYPacket`, `QCYAdvertisement`) |

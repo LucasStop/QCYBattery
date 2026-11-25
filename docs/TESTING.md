@@ -1,5 +1,7 @@
 # Testes — QCYBattery
 
+Status: rascunho, aguardando aprovação do Lucas
+
 | Parte | Risco | Nível | Onde | Quando |
 |---|---|---|---|---|
 | Modelo da janela | Escrita sem confirmação, rollback que não volta, controle habilitado em somente leitura, estado antigo depois de link caído | unitário com link falso | `QCYBatteryTests/QCYViewModelTests.swift` | local, PR |
