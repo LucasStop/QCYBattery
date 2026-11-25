@@ -68,6 +68,7 @@ final class QCYViewModel {
     private(set) var pending: QCYPending?
     private(set) var writeFailed = false
     let isReadOnly: Bool
+    let macroStore: MacroStore
 
     @ObservationIgnored private let link: any QCYLink
     @ObservationIgnored private let notifier: any BatteryNotifying
@@ -90,12 +91,14 @@ final class QCYViewModel {
         settleTimeout: Duration = .seconds(3),
         pollInterval: Duration = .seconds(30),
         notifier: any BatteryNotifying = NoOpBatteryNotifier(),
-        alertSettings: @escaping @MainActor () -> BatteryAlertSettings = { .allEnabled }
+        alertSettings: @escaping @MainActor () -> BatteryAlertSettings = { .allEnabled },
+        macroStore: MacroStore = .inMemory()
     ) {
         self.link = link
         self.notifier = notifier
         self.alertSettings = alertSettings
         self.isReadOnly = isReadOnly
+        self.macroStore = macroStore
         self.writeTimeout = writeTimeout
         self.settleTimeout = settleTimeout
         self.pollInterval = pollInterval

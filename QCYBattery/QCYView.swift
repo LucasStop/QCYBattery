@@ -11,11 +11,18 @@ enum QCYTab: CaseIterable, Equatable, Hashable {
 struct QCYView: View {
     @Bindable var model: QCYViewModel
     @Bindable var preferences: PreferencesModel
+    @Bindable var macroStore: MacroStore
     @State private var selectedTab: QCYTab
 
-    init(model: QCYViewModel, preferences: PreferencesModel, selectedTab: QCYTab = .status) {
+    init(
+        model: QCYViewModel,
+        preferences: PreferencesModel,
+        macroStore: MacroStore? = nil,
+        selectedTab: QCYTab = .status
+    ) {
         self.model = model
         self.preferences = preferences
+        self.macroStore = macroStore ?? model.macroStore
         _selectedTab = State(initialValue: selectedTab)
     }
 
@@ -32,7 +39,7 @@ struct QCYView: View {
             case .sound:
                 QCYSoundView(model: model)
             case .touch:
-                QCYTouchView(model: model)
+                QCYTouchView(model: model, macroStore: macroStore)
             case .adjustments:
                 QCYAdjustmentsView(model: model, preferences: preferences)
             }

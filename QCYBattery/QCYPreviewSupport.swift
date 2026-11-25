@@ -29,12 +29,37 @@ private final class PreviewLaunchAtLoginController: LaunchAtLoginControlling {
     func setEnabled(_ enabled: Bool) throws { isEnabled = enabled }
 }
 
+private struct PreviewMacroEffects: MacroEffects, Sendable {
+    func postKey(_ shortcut: MacroKeyShortcut) async throws {}
+    func open(_ target: MacroOpenTarget) async throws {}
+    func runProcess(
+        executableURL: URL,
+        arguments: [String],
+        timeout: Duration
+    ) async throws -> MacroProcessOutput {
+        MacroProcessOutput(exitCode: 0, wasTruncated: false)
+    }
+}
+
+@MainActor
+func previewMacroStore(macros: [Macro] = []) -> MacroStore {
+    MacroStore.inMemory(macros: macros)
+}
+
+func previewMacroRunner() -> MacroRunner {
+    MacroRunner(effects: PreviewMacroEffects())
+}
+
 enum PreviewScenario { case connected, charging, loading, disconnected }
 
 @MainActor
-func previewModel(_ scenario: PreviewScenario, readOnly: Bool = false) -> QCYViewModel {
+func previewModel(
+    _ scenario: PreviewScenario,
+    readOnly: Bool = false,
+    macroStore: MacroStore = .inMemory()
+) -> QCYViewModel {
     let link = PreviewQCYLink()
-    let model = QCYViewModel(link: link, isReadOnly: readOnly)
+    let model = QCYViewModel(link: link, isReadOnly: readOnly, macroStore: macroStore)
     switch scenario {
     case .connected:
         var state = QCYState()

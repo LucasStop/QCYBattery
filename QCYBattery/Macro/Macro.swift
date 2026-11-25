@@ -16,6 +16,15 @@ enum MediaCommand: String, Codable, CaseIterable, Equatable, Hashable, Sendable 
         case .previous: .previousTrack
         }
     }
+
+    init?(keyFunction: QCYKeyFunction) {
+        switch keyFunction {
+        case .playPause: self = .play
+        case .nextTrack: self = .next
+        case .previousTrack: self = .previous
+        default: return nil
+        }
+    }
 }
 
 /// Modificadores aceitos em uma ação de atalho de teclado sintético (`CGEvent`).
