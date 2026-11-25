@@ -1,4 +1,5 @@
 #if DEBUG
+import AppKit
 import Foundation
 import QCYKit
 
@@ -14,6 +15,18 @@ final class PreviewQCYLink: QCYLink, @unchecked Sendable {
     func refreshKeyMap() {}
     func send(_ packet: QCYPacket) {}
     func setKeyFunction(_ function: QCYKeyFunction, for gesture: QCYGesture) {}
+}
+
+@MainActor
+private final class PreviewActivationPolicyApplier: ActivationPolicyApplying {
+    func apply(_ policy: NSApplication.ActivationPolicy) {}
+}
+
+@MainActor
+private final class PreviewLaunchAtLoginController: LaunchAtLoginControlling {
+    var isEnabled: Bool
+    init(isEnabled: Bool) { self.isEnabled = isEnabled }
+    func setEnabled(_ enabled: Bool) throws { isEnabled = enabled }
 }
 
 enum PreviewScenario { case connected, charging, loading, disconnected }
@@ -32,6 +45,13 @@ func previewModel(_ scenario: PreviewScenario, readOnly: Bool = false) -> QCYVie
         state.isLowLatencyEnabled = false
         state.soundEffect = .spatial
         state.balance = 42
+        state.powerOff = .fifteenMinutes
+        state.toneVolume = .medium
+        state.wearDetection = QCYWearDetection(
+            isEnabled: true,
+            musicControl: .pauseAndResume,
+            isANCSwitchEnabled: false
+        )
         state.keyMap = [
             .leftSingleTap: .unassigned,
             .rightSingleTap: .playPause,
@@ -48,6 +68,8 @@ func previewModel(_ scenario: PreviewScenario, readOnly: Bool = false) -> QCYVie
         state.ancScene = QCYANScene(mode: 0x02, subScene: 0x00, noiseValue: 0x00)
         state.soundEffect = .default
         state.balance = 50
+        state.powerOff = .disabled
+        state.toneVolume = .lower
         link.onState?(state)
     case .loading:
         break
@@ -55,5 +77,31 @@ func previewModel(_ scenario: PreviewScenario, readOnly: Bool = false) -> QCYVie
         link.onDisconnect?()
     }
     return model
+}
+
+@MainActor
+func previewPreferences(
+    showInMenuBar: Bool = true,
+    showInDock: Bool = true,
+    launchAtLogin: Bool = true
+) -> PreferencesModel {
+    let suiteName = "com.lucasstop.QCYBattery.preview.\(UUID().uuidString)"
+    let defaults = UserDefaults(suiteName: suiteName) ?? .standard
+    defaults.set(showInMenuBar, forKey: "preferences.showInMenuBar")
+    defaults.set(showInDock, forKey: "preferences.showInDock")
+    return PreferencesModel(
+        defaults: defaults,
+        policyApplier: PreviewActivationPolicyApplier(),
+        loginController: PreviewLaunchAtLoginController(isEnabled: launchAtLogin)
+    )
+}
+
+@MainActor
+func previewWindow(
+    _ scenario: PreviewScenario = .connected,
+    readOnly: Bool = false,
+    tab: QCYTab = .status
+) -> QCYView {
+    QCYView(model: previewModel(scenario, readOnly: readOnly), preferences: previewPreferences(), selectedTab: tab)
 }
 #endif
