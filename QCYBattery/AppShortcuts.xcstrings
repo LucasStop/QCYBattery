@@ -1,0 +1,102 @@
+{
+  "sourceLanguage": "pt-BR",
+  "strings": {
+    "Consultar bateria no ${applicationName}": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consultar bateria no ${applicationName}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get battery in ${applicationName}"
+          }
+        }
+      }
+    },
+    "Definir efeito de som no ${applicationName}": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Definir efeito de som no ${applicationName}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set sound effect in ${applicationName}"
+          }
+        }
+      }
+    },
+    "Definir modo de ruído no ${applicationName}": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Definir modo de ruído no ${applicationName}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set noise mode in ${applicationName}"
+          }
+        }
+      }
+    },
+    "Mudar efeito de som para ${effect} no ${applicationName}": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mudar efeito de som para ${effect} no ${applicationName}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change sound effect to ${effect} in ${applicationName}"
+          }
+        }
+      }
+    },
+    "Mudar modo de ruído para ${mode} no ${applicationName}": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mudar modo de ruído para ${mode} no ${applicationName}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change noise mode to ${mode} in ${applicationName}"
+          }
+        }
+      }
+    },
+    "Ver bateria no ${applicationName}": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver bateria no ${applicationName}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check battery in ${applicationName}"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
