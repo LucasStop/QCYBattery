@@ -1041,6 +1041,22 @@
         }
       }
     },
+    "qcy.tab.touch": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toques"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touch"
+          }
+        }
+      }
+    },
     "qcy.tabs.label": {
       "localizations": {
         "pt-BR": {
@@ -1053,6 +1069,214 @@
           "stringUnit": {
             "state": "translated",
             "value": "QCYBattery tabs"
+          }
+        }
+      }
+    },
+    "qcy.touch.function.ancMode": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modo ANC"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ANC mode"
+          }
+        }
+      }
+    },
+    "qcy.touch.function.lowLatency": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modo jogo"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Game mode"
+          }
+        }
+      }
+    },
+    "qcy.touch.function.nextTrack": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próxima"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next track"
+          }
+        }
+      }
+    },
+    "qcy.touch.function.playPause": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocar / pausar"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play / pause"
+          }
+        }
+      }
+    },
+    "qcy.touch.function.previousTrack": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anterior"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous track"
+          }
+        }
+      }
+    },
+    "qcy.touch.function.unassigned": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        }
+      }
+    },
+    "qcy.touch.function.voiceAssistant": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assistente"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice assistant"
+          }
+        }
+      }
+    },
+    "qcy.touch.function.volumeDown": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volume −"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volume −"
+          }
+        }
+      }
+    },
+    "qcy.touch.function.volumeUp": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volume +"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volume +"
+          }
+        }
+      }
+    },
+    "qcy.touch.header.gesture": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gesto"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gesture"
+          }
+        }
+      }
+    },
+    "qcy.touch.tap.double": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 toques"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 taps"
+          }
+        }
+      }
+    },
+    "qcy.touch.tap.single": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 toque"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 tap"
+          }
+        }
+      }
+    },
+    "qcy.touch.tap.triple": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 toques"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 taps"
           }
         }
       }

@@ -11,7 +11,9 @@ protocol QCYLink: AnyObject, Sendable {
     func start()
     func stop()
     func refresh()
+    func refreshKeyMap()
     func send(_ packet: QCYPacket)
+    func setKeyFunction(_ function: QCYKeyFunction, for gesture: QCYGesture)
 }
 
 extension QCYClient: QCYLink {}
@@ -47,6 +49,7 @@ enum QCYPending: Equatable, Sendable {
     case soundEffect(QCYSoundEffect)
     case vocalBoost(Bool)
     case balance(UInt8)
+    case key(QCYGesture, QCYKeyFunction)
 }
 
 /// Estado da janela do fone (T12). O controle só muda depois do eco do fone; sem eco no prazo, ou com o link
@@ -114,6 +117,13 @@ final class QCYViewModel {
         if case .balance(let target)? = pending { return target }
         return state.balance ?? 50
     }
+    var keyMap: [QCYGesture: QCYKeyFunction] {
+        var map = state.keyMap
+        if case .key(let gesture, let function)? = pending {
+            map[gesture] = function
+        }
+        return map
+    }
     var areControlsDisabled: Bool { isReadOnly || phase != .connected || pending != nil }
 
     var isCharging: Bool {
@@ -138,7 +148,10 @@ final class QCYViewModel {
             while !Task.isCancelled {
                 try? await Task.sleep(for: self?.pollInterval ?? .seconds(30))
                 guard let self, !Task.isCancelled else { return }
-                if phase == .connected, pending == nil { link.refresh() }
+                if phase == .connected, pending == nil {
+                    link.refresh()
+                    link.refreshKeyMap()
+                }
             }
         }
     }
@@ -164,6 +177,7 @@ final class QCYViewModel {
     func retryAfterFailure() {
         writeFailed = false
         link.refresh()
+        link.refreshKeyMap()
     }
 
     // MARK: - Escrita
@@ -201,10 +215,19 @@ final class QCYViewModel {
         begin(.balance(clamped), .setBalance(clamped))
     }
 
+    func choose(function: QCYKeyFunction, for gesture: QCYGesture) {
+        guard !areControlsDisabled, keyMap[gesture] != function else { return }
+        begin(.key(gesture, function)) { link.setKeyFunction(function, for: gesture) }
+    }
+
     private func begin(_ write: QCYPending, _ packet: QCYPacket) {
+        begin(write) { link.send(packet) }
+    }
+
+    private func begin(_ write: QCYPending, perform action: () -> Void) {
         pending = write
         writeFailed = false
-        link.send(packet)
+        action()
         writeTask?.cancel()
         writeTask = Task { [weak self] in
             try? await Task.sleep(for: self?.writeTimeout ?? .seconds(3))
@@ -233,6 +256,7 @@ final class QCYViewModel {
         case .vocalBoost(let enabled):
             state.ancScene?.mode == 0x03 && state.ancScene?.subScene == (enabled ? 0x02 : 0x01)
         case .balance(let target): state.balance == target
+        case .key(let gesture, let function): state.keyMap[gesture] == function
         }
         if confirmed {
             pending = nil

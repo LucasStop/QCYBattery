@@ -11,7 +11,9 @@ final class PreviewQCYLink: QCYLink, @unchecked Sendable {
     func start() {}
     func stop() {}
     func refresh() {}
+    func refreshKeyMap() {}
     func send(_ packet: QCYPacket) {}
+    func setKeyFunction(_ function: QCYKeyFunction, for gesture: QCYGesture) {}
 }
 
 enum PreviewScenario { case connected, charging, loading, disconnected }
@@ -30,6 +32,14 @@ func previewModel(_ scenario: PreviewScenario, readOnly: Bool = false) -> QCYVie
         state.isLowLatencyEnabled = false
         state.soundEffect = .spatial
         state.balance = 42
+        state.keyMap = [
+            .leftSingleTap: .unassigned,
+            .rightSingleTap: .playPause,
+            .leftDoubleTap: .previousTrack,
+            .rightDoubleTap: .nextTrack,
+            .leftTripleTap: .ancMode,
+            .rightTripleTap: .voiceAssistant
+        ]
         link.onState?(state)
     case .charging:
         var state = QCYState()

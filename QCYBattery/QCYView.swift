@@ -1,13 +1,14 @@
 import QCYKit
 import SwiftUI
 
-/// Abas da janela principal (T12 e T14).
+/// Abas da janela principal (T12, T14 e T15).
 enum QCYTab: CaseIterable, Equatable, Hashable {
     case status
     case sound
+    case touch
 }
 
-/// Janela do fone (T12/T14): barra de abas segmentada (Status / Som), bateria, controles e detalhes.
+/// Janela do fone (T12/T14/T15): barra de abas segmentada (Status / Som / Toques), bateria, controles e detalhes.
 /// Sem bateria de estojo (firmware 2.0.6 não expõe).
 struct QCYView: View {
     @Bindable var model: QCYViewModel
@@ -30,6 +31,8 @@ struct QCYView: View {
                 detailsGroup
             case .sound:
                 QCYSoundView(model: model)
+            case .touch:
+                QCYTouchView(model: model)
             }
         }
         .padding(16)
@@ -176,7 +179,8 @@ struct QCYTabBar: View {
         HStack(spacing: 2) {
             ForEach([
                 (QCYTab.status, LocalizedStringKey("qcy.tab.status")),
-                (QCYTab.sound, LocalizedStringKey("qcy.tab.sound"))
+                (QCYTab.sound, LocalizedStringKey("qcy.tab.sound")),
+                (QCYTab.touch, LocalizedStringKey("qcy.tab.touch"))
             ], id: \.0) { tab, label in
                 let isSelected = selection == tab
 
@@ -386,6 +390,7 @@ struct QCYBanner: View {
 #if DEBUG
 #Preview("Conectado") { QCYView(model: previewModel(.connected)) }
 #Preview("Aba Som") { QCYView(model: previewModel(.connected), selectedTab: .sound) }
+#Preview("Aba Toques") { QCYView(model: previewModel(.connected), selectedTab: .touch) }
 #Preview("Somente leitura") { QCYView(model: previewModel(.connected, readOnly: true)) }
 #Preview("Lendo") { QCYView(model: previewModel(.loading)) }
 #Preview("Sem conexão") { QCYView(model: previewModel(.disconnected)) }

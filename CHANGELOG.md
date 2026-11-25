@@ -2,6 +2,12 @@
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), em português, uma seção por versão publicada. Cada PR `feat` ou `fix` traz a própria seção, com o que mudou e por quê; os demais tipos não entram. Seções: Adicionado, Alterado, Corrigido, Removido.
 
+## 0.4.0 - 2026-11-25
+
+### Adicionado
+
+- Aba Toques na janela principal para remapear os gestos do fone (1, 2 e 3 toques, esquerdo e direito) entre as funções que o fone aceita: antes só dava para mudar isso no app oficial da QCY. O fone não expõe 4 toques nem toque longo, então esses não aparecem; a troca só vale depois que o fone confirma a escrita.
+
 ## 0.3.0 - 2026-11-25
 
 ### Adicionado
