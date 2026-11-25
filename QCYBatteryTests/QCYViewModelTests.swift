@@ -95,6 +95,24 @@ final class QCYViewModelTests: XCTestCase {
         XCTAssertNil(model.pending)
     }
 
+    func testWriteRereadsStateSoSilentSettingsGetConfirmed() async {
+        let (model, link) = makeModel()
+        link.onState?(state())
+        await flush()
+        let before = link.refreshCount
+
+        model.setBalance(80)
+        try? await Task.sleep(for: .milliseconds(500))
+        XCTAssertGreaterThan(link.refreshCount, before)
+
+        var echoed = state()
+        echoed.balance = 80
+        link.onState?(echoed)
+        await flush()
+        XCTAssertNil(model.pending)
+        XCTAssertFalse(model.writeFailed)
+    }
+
     func testRollsBackWhenFoneDoesNotEcho() async {
         let (model, link) = makeModel(writeTimeout: .milliseconds(40))
         link.onState?(state())
