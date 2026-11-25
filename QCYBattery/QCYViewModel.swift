@@ -44,6 +44,9 @@ enum QCYPending: Equatable, Sendable {
     case anc(QCYANCChoice)
     case ldac(Bool)
     case game(Bool)
+    case soundEffect(QCYSoundEffect)
+    case vocalBoost(Bool)
+    case balance(UInt8)
 }
 
 /// Estado da janela do fone (T12). O controle só muda depois do eco do fone; sem eco no prazo, ou com o link
@@ -65,6 +68,7 @@ final class QCYViewModel {
     @ObservationIgnored private let settleTimeout: Duration
     @ObservationIgnored private let pollInterval: Duration
     @ObservationIgnored private var isLinked = false
+    @ObservationIgnored private var lastTransparencyLevel: UInt8 = 3
     @ObservationIgnored private var writeTask: Task<Void, Never>?
     @ObservationIgnored private var settleTask: Task<Void, Never>?
     @ObservationIgnored private var pollTask: Task<Void, Never>?
@@ -96,6 +100,19 @@ final class QCYViewModel {
     var isGameOn: Bool {
         if case .game(let value)? = pending { return value }
         return state.isLowLatencyEnabled ?? false
+    }
+    var soundEffect: QCYSoundEffect? {
+        if case .soundEffect(let target)? = pending { return target }
+        return state.soundEffect
+    }
+    var isVocalBoostAvailable: Bool { state.ancScene?.mode == 0x03 }
+    var isVocalBoostOn: Bool {
+        if case .vocalBoost(let enabled)? = pending { return enabled }
+        return state.ancScene?.mode == 0x03 && state.ancScene?.subScene == 0x02
+    }
+    var balance: UInt8 {
+        if case .balance(let target)? = pending { return target }
+        return state.balance ?? 50
     }
     var areControlsDisabled: Bool { isReadOnly || phase != .connected || pending != nil }
 
@@ -166,6 +183,24 @@ final class QCYViewModel {
         begin(.game(enabled), .setLowLatency(enabled))
     }
 
+    func choose(effect: QCYSoundEffect) {
+        guard !areControlsDisabled, effect != soundEffect,
+              let packet = QCYPacket.setSoundEffect(effect) else { return }
+        begin(.soundEffect(effect), packet)
+    }
+
+    func setVocalBoost(_ enabled: Bool) {
+        guard !areControlsDisabled, isVocalBoostAvailable, enabled != isVocalBoostOn else { return }
+        let packet: QCYPacket = enabled ? .transparencyVocal() : .transparency(level: lastTransparencyLevel)
+        begin(.vocalBoost(enabled), packet)
+    }
+
+    func setBalance(_ value: UInt8) {
+        let clamped = min(value, 100)
+        guard !areControlsDisabled, clamped != balance else { return }
+        begin(.balance(clamped), .setBalance(clamped))
+    }
+
     private func begin(_ write: QCYPending, _ packet: QCYPacket) {
         pending = write
         writeFailed = false
@@ -183,6 +218,10 @@ final class QCYViewModel {
 
     private func receive(_ newState: QCYState) {
         state = newState
+        if let scene = newState.ancScene, scene.mode == 0x03, scene.subScene == 0x01,
+           (1...6).contains(scene.noiseValue) {
+            lastTransparencyLevel = scene.noiseValue
+        }
         phase = .connected
         settleTask?.cancel()
         guard let write = pending else { return }
@@ -190,6 +229,10 @@ final class QCYViewModel {
         case .anc(let target): ancChoice == target
         case .ldac(let value): state.isLDACEnabled == value
         case .game(let value): state.isLowLatencyEnabled == value
+        case .soundEffect(let target): state.soundEffect == target
+        case .vocalBoost(let enabled):
+            state.ancScene?.mode == 0x03 && state.ancScene?.subScene == (enabled ? 0x02 : 0x01)
+        case .balance(let target): state.balance == target
         }
         if confirmed {
             pending = nil
@@ -212,6 +255,7 @@ final class QCYViewModel {
 
     private func linkLost() {
         isLinked = false
+        lastTransparencyLevel = 3
         phase = .disconnected
         state = QCYState()
         address = nil

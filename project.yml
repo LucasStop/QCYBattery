@@ -15,7 +15,7 @@ settings:
 packages:
   QCYKit:
     url: https://github.com/LucasStop/QCYKit
-    from: 0.1.0
+    from: 0.6.0
 targets:
   QCYBattery:
     type: application

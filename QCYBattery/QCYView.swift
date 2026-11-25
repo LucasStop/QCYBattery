@@ -1,17 +1,36 @@
 import QCYKit
 import SwiftUI
 
-/// Janela do fone (T12): bateria por lado, controles e detalhes. Sem bateria de estojo (firmware 2.0.6 não expõe).
+/// Abas da janela principal (T12 e T14).
+enum QCYTab: CaseIterable, Equatable, Hashable {
+    case status
+    case sound
+}
+
+/// Janela do fone (T12/T14): barra de abas segmentada (Status / Som), bateria, controles e detalhes.
+/// Sem bateria de estojo (firmware 2.0.6 não expõe).
 struct QCYView: View {
     @Bindable var model: QCYViewModel
+    @State private var selectedTab: QCYTab
+
+    init(model: QCYViewModel, selectedTab: QCYTab = .status) {
+        self.model = model
+        _selectedTab = State(initialValue: selectedTab)
+    }
 
     var body: some View {
         VStack(spacing: 12) {
-            header
-            batteryGroup
-            banner
-            controlsGroup
-            detailsGroup
+            QCYTabBar(selection: $selectedTab)
+            switch selectedTab {
+            case .status:
+                header
+                batteryGroup
+                QCYStatusBanner(model: model)
+                controlsGroup
+                detailsGroup
+            case .sound:
+                QCYSoundView(model: model)
+            }
         }
         .padding(16)
         .frame(width: 468)
@@ -66,26 +85,6 @@ struct QCYView: View {
                     .font(.caption).foregroundStyle(.secondary)
             }
             .padding(.top, 16).padding(.horizontal, 12).padding(.bottom, 12)
-        }
-    }
-
-    // MARK: - Avisos
-
-    @ViewBuilder
-    private var banner: some View {
-        if model.writeFailed {
-            QCYBanner(tint: BatteryLevel.critical.color, title: "qcy.error.title", detail: "qcy.error.detail",
-                      action: ("qcy.error.retry", { model.retryAfterFailure() }))
-            .accessibilityAddTraits(.isModal)
-        } else if model.pending != nil {
-            QCYBanner(tint: Color(light: 0x2B6CB0, dark: 0x63B3ED), title: "qcy.pending.title",
-                      detail: "qcy.pending.detail", spinner: true)
-        } else if model.phase == .disconnected {
-            QCYBanner(tint: BatteryLevel.low.color, title: "qcy.offline.title", detail: "qcy.offline.detail",
-                      action: ("qcy.offline.retry", { model.reconnect() }))
-        } else if model.isReadOnly, model.phase == .connected {
-            QCYBanner(tint: Color(light: 0x2B6CB0, dark: 0x63B3ED), title: "qcy.readonly.title",
-                      detail: "qcy.readonly.detail")
         }
     }
 
@@ -169,6 +168,67 @@ private extension Optional where Wrapped == QCYPending {
 
 // MARK: - Componentes
 
+/// Barra de abas segmentada própria (DESIGN.md): o `Picker` nativo do macOS não estica até a largura da janela.
+struct QCYTabBar: View {
+    @Binding var selection: QCYTab
+
+    var body: some View {
+        HStack(spacing: 2) {
+            ForEach([
+                (QCYTab.status, LocalizedStringKey("qcy.tab.status")),
+                (QCYTab.sound, LocalizedStringKey("qcy.tab.sound"))
+            ], id: \.0) { tab, label in
+                let isSelected = selection == tab
+
+                Button {
+                    selection = tab
+                } label: {
+                    Text(label)
+                        .font(.system(size: 12, weight: isSelected ? .semibold : .regular))
+                        .foregroundStyle(isSelected ? Color.primary : Color.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 5)
+                        .background {
+                            if isSelected {
+                                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                    .fill(Color(nsColor: .controlBackgroundColor))
+                                    .shadow(color: .black.opacity(0.12), radius: 1, y: 1)
+                            }
+                        }
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("qcy.tabs.label")
+        .padding(2)
+        .background(.quaternary, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
+}
+
+/// Banner de estado compartilhado entre as abas da janela (erro, aplicando, sem conexão, somente leitura).
+struct QCYStatusBanner: View {
+    let model: QCYViewModel
+
+    var body: some View {
+        if model.writeFailed {
+            QCYBanner(tint: BatteryLevel.critical.color, title: "qcy.error.title", detail: "qcy.error.detail",
+                      action: ("qcy.error.retry", { model.retryAfterFailure() }))
+            .accessibilityAddTraits(.isModal)
+        } else if model.pending != nil {
+            QCYBanner(tint: Color(light: 0x2B6CB0, dark: 0x63B3ED), title: "qcy.pending.title",
+                      detail: "qcy.pending.detail", spinner: true)
+        } else if model.phase == .disconnected {
+            QCYBanner(tint: BatteryLevel.low.color, title: "qcy.offline.title", detail: "qcy.offline.detail",
+                      action: ("qcy.offline.retry", { model.reconnect() }))
+        } else if model.isReadOnly, model.phase == .connected {
+            QCYBanner(tint: Color(light: 0x2B6CB0, dark: 0x63B3ED), title: "qcy.readonly.title",
+                      detail: "qcy.readonly.detail")
+        }
+    }
+}
+
 /// Seletor de 3 botões do ANC (DESIGN.md): reutilizado na janela (T12) e no popover da barra de menu (T13).
 struct QCYANCSelector: View {
     let selection: QCYANCChoice?
@@ -221,7 +281,7 @@ struct QCYGroup<Content: View>: View {
     }
 }
 
-private struct QCYLabel: View {
+struct QCYLabel: View {
     let title: LocalizedStringKey
     let hint: LocalizedStringKey
 
@@ -325,6 +385,7 @@ struct QCYBanner: View {
 
 #if DEBUG
 #Preview("Conectado") { QCYView(model: previewModel(.connected)) }
+#Preview("Aba Som") { QCYView(model: previewModel(.connected), selectedTab: .sound) }
 #Preview("Somente leitura") { QCYView(model: previewModel(.connected, readOnly: true)) }
 #Preview("Lendo") { QCYView(model: previewModel(.loading)) }
 #Preview("Sem conexão") { QCYView(model: previewModel(.disconnected)) }
