@@ -1,6 +1,6 @@
 # API — QCYBattery
 
-Status: rascunho, aguardando aprovação do Lucas
+Status: aprovado em 2026-11-25
 
 Sem API de rede nem contrato com outro processo: o app não tem widget, não escreve snapshot e não expõe URL scheme.
 
