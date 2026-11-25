@@ -14,7 +14,7 @@ final class PreviewQCYLink: QCYLink, @unchecked Sendable {
     func send(_ packet: QCYPacket) {}
 }
 
-enum PreviewScenario { case connected, loading, disconnected }
+enum PreviewScenario { case connected, charging, loading, disconnected }
 
 @MainActor
 func previewModel(_ scenario: PreviewScenario, readOnly: Bool = false) -> QCYViewModel {
@@ -24,10 +24,16 @@ func previewModel(_ scenario: PreviewScenario, readOnly: Bool = false) -> QCYVie
     case .connected:
         var state = QCYState()
         state.left = QCYBatteryLevel(raw: 90)
-        state.right = QCYBatteryLevel(raw: 0x80 | 64)
-        state.ancScene = QCYANScene(mode: 0x01, subScene: 0x02, noiseValue: 0x03)
+        state.right = QCYBatteryLevel(raw: 91)
+        state.ancScene = QCYANScene(mode: 0x03, subScene: 0x02, noiseValue: 0x00)
         state.isLDACEnabled = true
         state.isLowLatencyEnabled = false
+        link.onState?(state)
+    case .charging:
+        var state = QCYState()
+        state.left = QCYBatteryLevel(raw: 0x80 | 84)
+        state.right = QCYBatteryLevel(raw: 0x80 | 86)
+        state.ancScene = QCYANScene(mode: 0x02, subScene: 0x00, noiseValue: 0x00)
         link.onState?(state)
     case .loading:
         break

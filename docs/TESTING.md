@@ -4,7 +4,8 @@ Status: aprovado em 2026-11-25
 
 | Parte | Risco | Nível | Onde | Quando |
 |---|---|---|---|---|
-| Modelo da janela | Escrita sem confirmação, rollback que não volta, controle habilitado em somente leitura, estado antigo depois de link caído | unitário com link falso | `QCYBatteryTests/QCYViewModelTests.swift` | local, PR |
+| Modelo da janela | Escrita sem confirmação, rollback que não volta, controle habilitado em somente leitura, estado antigo depois de link caído, rótulo da barra de menu e estado de carga | unitário com link falso | `QCYBatteryTests/QCYViewModelTests.swift` | local, PR |
+| Preferências de presença e login | Desligar as duas visibilidades ao mesmo tempo, mapeamento para `NSApplication.ActivationPolicy`, persistência e reflexo do status real do login | unitário com fakes (`ActivationPolicyApplying`, `LaunchAtLoginControlling`) | `QCYBatteryTests/PreferencesModelTests.swift` | local, PR |
 | Protocolo | Byte mal lido | unitário com bytes reais | no QCYKit (`QCYProtocolTests`) | PR do QCYKit |
 | Vínculo real com o fone | Permissão, GATT, escrita | smoke manual | `tools/qcyctl` do QCYKit e o app instalado | à mão, com o Lucas presente |
 

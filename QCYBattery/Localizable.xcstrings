@@ -257,6 +257,22 @@
         }
       }
     },
+    "qcy.foot.charging": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No estojo com tampa aberta"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In case with lid open"
+          }
+        }
+      }
+    },
     "qcy.foot.none": {
       "localizations": {
         "pt-BR": {
@@ -349,6 +365,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "LDAC"
+          }
+        }
+      }
+    },
+    "qcy.menubar.open": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir QCYBattery…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open QCYBattery…"
+          }
+        }
+      }
+    },
+    "qcy.menubar.quit": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encerrar"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit"
           }
         }
       }
@@ -449,6 +497,70 @@
         }
       }
     },
+    "qcy.popover.error.detail": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O ajuste anterior foi mantido."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The previous setting was kept."
+          }
+        }
+      }
+    },
+    "qcy.popover.offline.detail": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aproxime o fone do Mac para reconectar."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bring the earbuds close to the Mac to reconnect."
+          }
+        }
+      }
+    },
+    "qcy.popover.pending.detail": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aguardando confirmação do eco."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for echo confirmation."
+          }
+        }
+      }
+    },
+    "qcy.popover.subtitle.connected": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth LE"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bluetooth LE"
+          }
+        }
+      }
+    },
     "qcy.readonly.detail": {
       "localizations": {
         "pt-BR": {
@@ -493,6 +605,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Battery"
+          }
+        }
+      }
+    },
+    "qcy.ring.critical": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crítica"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Critical"
           }
         }
       }
@@ -621,6 +749,102 @@
           "stringUnit": {
             "state": "translated",
             "value": "QCY MeloBuds Pro"
+          }
+        }
+      }
+    },
+    "settings.launchAtLogin": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir ao iniciar sessão"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open at login"
+          }
+        }
+      }
+    },
+    "settings.section.presence": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Presença"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Presence"
+          }
+        }
+      }
+    },
+    "settings.section.startup": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inicialização"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Startup"
+          }
+        }
+      }
+    },
+    "settings.showInDock": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar no Dock"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show in Dock"
+          }
+        }
+      }
+    },
+    "settings.showInMenuBar": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar na barra de menu"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show in menu bar"
+          }
+        }
+      }
+    },
+    "settings.visibility.hint": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pelo menos uma opção (barra de menu ou Dock) precisa ficar ativa."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At least one option (menu bar or Dock) must stay on."
           }
         }
       }
