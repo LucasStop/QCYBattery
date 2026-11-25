@@ -68,12 +68,20 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
         sharedPreferences.applyActivationPolicy()
         sharedModel.start()
+        sharedMacroCoordinator.start()
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
+        sharedMacroCoordinator.stop()
     }
 }
 
 /// Instâncias únicas: o ciclo de vida no `AppDelegate`, a janela e o item da barra de menu enxergam o mesmo estado.
 @MainActor private let sharedNotifier = UNBatteryNotifier()
 @MainActor private let sharedPreferences = PreferencesModel(notifier: sharedNotifier)
+@MainActor private let sharedMacroStore = MacroStore()
+@MainActor private let sharedMacroCoordinator = MacroCoordinator(store: sharedMacroStore)
 @MainActor private let sharedModel = QCYViewModel(
     link: QCYClient(),
     isReadOnly: CommandLine.arguments.contains("--read-only"),
