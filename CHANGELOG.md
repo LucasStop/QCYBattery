@@ -2,6 +2,12 @@
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), em português, uma seção por versão publicada. Cada PR `feat` ou `fix` traz a própria seção, com o que mudou e por quê; os demais tipos não entram. Seções: Adicionado, Alterado, Corrigido, Removido.
 
+## 0.9.1 - 2026-11-25
+
+### Corrigido
+
+- O item da barra de menu aparecia só com "L n% · R n%", sem o ícone do fone: o símbolo customizado não é desenhado no rótulo da barra de menu. Agora o rótulo usa o símbolo de fone do sistema, alinhado pela linha de base com os outros itens da barra; as janelas e o popover seguem com o símbolo próprio.
+
 ## 0.9.0 - 2026-11-25
 
 ### Adicionado
