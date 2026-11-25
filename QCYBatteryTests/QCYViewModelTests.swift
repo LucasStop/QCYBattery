@@ -1,3 +1,4 @@
+import QCYKit
 import XCTest
 @testable import QCYBattery
 

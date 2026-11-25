@@ -1,3 +1,4 @@
+import QCYKit
 import SwiftUI
 
 /// Janela do fone (T12): bateria por lado, controles e detalhes. Sem bateria de estojo (firmware 2.0.6 não expõe).

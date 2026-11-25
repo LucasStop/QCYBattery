@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import QCYKit
 
 /// Canal com o fone, atrás de protocolo para os testes trocarem o CoreBluetooth por um fake.
 protocol QCYLink: AnyObject, Sendable {
