@@ -28,12 +28,16 @@ func previewModel(_ scenario: PreviewScenario, readOnly: Bool = false) -> QCYVie
         state.ancScene = QCYANScene(mode: 0x03, subScene: 0x02, noiseValue: 0x00)
         state.isLDACEnabled = true
         state.isLowLatencyEnabled = false
+        state.soundEffect = .spatial
+        state.balance = 42
         link.onState?(state)
     case .charging:
         var state = QCYState()
         state.left = QCYBatteryLevel(raw: 0x80 | 84)
         state.right = QCYBatteryLevel(raw: 0x80 | 86)
         state.ancScene = QCYANScene(mode: 0x02, subScene: 0x00, noiseValue: 0x00)
+        state.soundEffect = .default
+        state.balance = 50
         link.onState?(state)
     case .loading:
         break
