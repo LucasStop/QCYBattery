@@ -1,6 +1,6 @@
 # Arquitetura — QCYBattery
 
-Status: rascunho, aguardando aprovação do Lucas
+Status: aprovado em 2026-11-25
 
 | Parte | Faz | Código |
 |---|---|---|
