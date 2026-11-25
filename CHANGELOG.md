@@ -2,6 +2,12 @@
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), em português, uma seção por versão publicada. Cada PR `feat` ou `fix` traz a própria seção, com o que mudou e por quê; os demais tipos não entram. Seções: Adicionado, Alterado, Corrigido, Removido.
 
+## 0.7.0 - 2026-11-25
+
+### Adicionado
+
+- Ações no app Atalhos (e Spotlight/Siri) para definir o modo de ruído, definir o efeito de som e consultar a bateria de cada lado: dá para automatizar o fone (por exemplo, trocar para transparência ao chegar em casa) sem abrir o app. A escrita só é dada como feita depois que o fone confirma; sem conexão em 5 s ou sem eco, a ação falha com uma mensagem legível em vez de fingir sucesso.
+
 ## 0.6.0 - 2026-11-25
 
 ### Adicionado
