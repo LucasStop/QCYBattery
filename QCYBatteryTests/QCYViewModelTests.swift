@@ -14,7 +14,9 @@ private final class FakeLink: QCYLink, @unchecked Sendable {
     func start() {}
     func stop() {}
     func refresh() { refreshCount += 1 }
+    func refreshKeyMap() {}
     func send(_ packet: QCYPacket) { sent.append(packet) }
+    func setKeyFunction(_ function: QCYKeyFunction, for gesture: QCYGesture) {}
 }
 
 @MainActor
