@@ -79,6 +79,7 @@ final class QCYViewModel {
     @ObservationIgnored private var isLinked = false
     @ObservationIgnored private var lastTransparencyLevel: UInt8 = 3
     @ObservationIgnored private var writeTask: Task<Void, Never>?
+    @ObservationIgnored private var readbackTask: Task<Void, Never>?
     @ObservationIgnored private var settleTask: Task<Void, Never>?
     @ObservationIgnored private var pollTask: Task<Void, Never>?
 
@@ -127,6 +128,7 @@ final class QCYViewModel {
     func stop() {
         pollTask?.cancel()
         writeTask?.cancel()
+        readbackTask?.cancel()
         settleTask?.cancel()
         link.stop()
     }
@@ -217,6 +219,16 @@ final class QCYViewModel {
         writeFailed = false
         action()
         writeTask?.cancel()
+        readbackTask?.cancel()
+        // Balanço, efeitos, desligamento, volume e detecção de uso não geram notificação: o fone só
+        // confirma o valor novo quando lido de volta.
+        readbackTask = Task { [weak self] in
+            for delay in [Duration.milliseconds(400), .milliseconds(500)] {
+                try? await Task.sleep(for: delay)
+                guard let self, !Task.isCancelled else { return }
+                link.refresh()
+            }
+        }
         writeTask = Task { [weak self] in
             try? await Task.sleep(for: self?.writeTimeout ?? .seconds(3))
             guard let self, !Task.isCancelled else { return }
@@ -242,6 +254,7 @@ final class QCYViewModel {
         if isConfirmed(write) {
             pending = nil
             writeTask?.cancel()
+            readbackTask?.cancel()
         }
     }
 
@@ -289,6 +302,7 @@ final class QCYViewModel {
         address = nil
         pending = nil
         writeTask?.cancel()
+        readbackTask?.cancel()
     }
 
     private func settle(after delay: Duration, _ action: @escaping @MainActor () -> Void) {

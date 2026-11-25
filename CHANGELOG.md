@@ -2,6 +2,12 @@
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), em português, uma seção por versão publicada. Cada PR `feat` ou `fix` traz a própria seção, com o que mudou e por quê; os demais tipos não entram. Seções: Adicionado, Alterado, Corrigido, Removido.
 
+## 0.8.1 - 2026-11-25
+
+### Corrigido
+
+- As abas Som e Ajustes mostravam "O fone não respondeu" ao mudar efeito, balanço, desligamento automático, volume dos avisos ou detecção de uso, embora o fone aplicasse a mudança: ele não avisa o valor novo nesses comandos, e o app só confirmava por aviso. Agora o app relê o estado logo depois de escrever e confirma pela leitura; uma escrita que realmente falha continua voltando ao valor anterior.
+
 ## 0.8.0 - 2026-11-25
 
 ### Adicionado
