@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>T15 · Aba Toques e editor de macro</title>
+<style>
+/* Tokens do DESIGN.md (herdados do proto.css do LogiBattery), embutidos para protótipo autocontido. */
+:root{--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--r-sm:6px;--r-md:10px;--r-lg:14px;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;font-size:13px;line-height:18px}
+.theme.light{--background:#ececec;--surface:#fff;--raised:#f4f4f5;--fg:#1d1d1f;--muted:#6e6e73;--border:#d2d2d7;
+  --primary:#0a64f0;--primary-fg:#fff;--success:#1f9d55;--warning:#b7791f;--danger:#c53030;--info:#2b6cb0;--disabled:#a1a1a6;
+  --backdrop:#c9d4e6}
+.theme.dark{--background:#2a2a2d;--surface:#38383b;--raised:#1f1f21;--fg:#f5f5f7;--muted:#a1a1a6;--border:#4d4d52;
+  --primary:#3b8bff;--primary-fg:#fff;--success:#34c77b;--warning:#f2b13c;--danger:#ff6b6b;--info:#63b3ed;--disabled:#636366;
+  --backdrop:#2c3a52}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f5f7;color:#1d1d1f;padding:var(--s5)}
+h1{font-size:22px;line-height:28px;margin:0 0 var(--s1)}
+.lead{color:#6e6e73;margin:0 0 var(--s5);max-width:74ch}
+.state{margin:0 0 var(--s6)}
+.state>h2{font-size:17px;line-height:22px;margin:0 0 var(--s2)}
+.pair{display:flex;gap:var(--s5);flex-wrap:wrap}
+.theme{padding:var(--s5);border-radius:var(--r-lg);background:var(--backdrop);color:var(--fg);display:flex;align-items:flex-start;gap:var(--s4);flex-wrap:wrap;min-width:340px}
+.tag{font-size:10px;line-height:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 var(--s2)}
+.tabular{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.caption{font-size:11px;line-height:14px;color:var(--muted)}
+/* janela (468 pt) */
+.window{position:relative;width:468px;background:var(--background);border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden}
+.window .tb{padding:var(--s3) var(--s4) var(--s2);border-bottom:1px solid var(--border);display:grid;gap:var(--s2)}
+.window .tb-title{font-weight:600;text-align:center;font-size:13px}
+.window .bd{padding:var(--s4);display:grid;gap:var(--s3)}
+/* barra de abas segmentada */
+.tabs{display:flex;background:var(--raised);border:1px solid var(--border);border-radius:8px;padding:2px;gap:2px}
+.tabs button{flex:1;font:inherit;font-size:12px;border:0;background:transparent;color:var(--muted);padding:4px 8px;border-radius:6px;min-height:24px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--fg);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+/* desenho dos fones L e R */
+.group{background:var(--surface);border-radius:var(--r-md)}
+.buds{display:grid;grid-template-columns:116px 1fr 1fr;align-items:center;gap:var(--s2);padding:var(--s3) var(--s4);border-bottom:1px solid var(--border)}
+.bud-col{display:flex;flex-direction:column;align-items:center;gap:4px}
+.bud-col svg{width:40px;height:44px;color:var(--fg)}
+.bud-col b{font-size:12px;font-weight:600}
+.bud-col span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+/* linhas de gesto */
+.g-row{display:grid;grid-template-columns:116px 1fr 1fr;align-items:center;gap:var(--s2);padding:10px var(--s4)}
+.g-row+.g-row{border-top:1px solid var(--border)}
+.g-lbl{font-size:12px;font-weight:500}
+.g-lbl .pill{display:inline-block;margin-top:3px}
+.g-row.tbd{background:var(--raised)}
+.g-row.tbd .g-lbl{color:var(--muted)}
+.pill{font-size:10px;line-height:13px;padding:1px 6px;border-radius:999px;background:var(--raised);border:1px solid var(--border);color:var(--muted);font-weight:500}
+.g-row.tbd .pill{background:var(--surface)}
+.cell-sel{width:100%;font:inherit;font-size:12px;color:var(--fg);background:var(--raised);border:1px solid var(--border);border-radius:var(--r-sm);padding:4px 6px;min-height:26px;cursor:pointer}
+.cell-sel.macro{border-color:var(--primary);color:var(--primary);font-weight:500}
+/* sheet do editor de macro */
+.sheet-scrim{position:absolute;inset:0;background:rgba(0,0,0,.38);display:grid;place-items:center;padding:var(--s4)}
+.sheet{width:100%;max-width:404px;background:var(--background);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:0 16px 40px rgba(0,0,0,.4);overflow:hidden}
+.sheet-hd{padding:var(--s3) var(--s4);border-bottom:1px solid var(--border);background:var(--surface)}
+.sheet-hd b{display:block;font-size:14px}
+.sheet-bd{padding:var(--s4);display:grid;gap:var(--s3)}
+.field{display:grid;gap:4px}
+.field label{font-size:12px;font-weight:500}
+.inp,.sheet select{font:inherit;font-size:12px;color:var(--fg);background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:6px 8px;width:100%}
+.inp.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}
+.sheet-ft{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);padding:var(--s3) var(--s4);border-top:1px solid var(--border);background:var(--surface)}
+.sheet-ft-r{display:flex;gap:var(--s2)}
+/* botões, banners, estados */
+.btn{font:inherit;font-size:12px;border:1px solid var(--border);background:var(--surface);color:var(--fg);padding:4px 12px;border-radius:var(--r-sm);min-height:26px;cursor:pointer}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:var(--primary-fg);font-weight:500}
+.dis{opacity:.55}
+.dis select{cursor:default;pointer-events:none}
+.banner{display:flex;gap:var(--s3);padding:var(--s3);border-radius:var(--r-md);background:var(--surface);border-left:3px solid var(--danger)}
+.banner.info{border-left-color:var(--info)}
+.banner.warn{border-left-color:var(--warning)}
+.banner b{display:block;font-size:12px}
+.banner small{display:block;color:var(--muted);font-size:11px;line-height:14px;margin-top:2px}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none;border-top-color:var(--border);border-left-color:var(--primary)}}
+.note{max-width:82ch;margin:0 0 var(--s4);padding-left:20px}
+.note li{margin-bottom:var(--s1)}
+</style>
+</head>
+<body>
+<h1>T15 · Aba Toques e editor de macro</h1>
+<p class="lead">Aba Toques da janela principal com desenho dos fones esquerdo (L) e direito (R), mapeamento por gesto (1 toque, 2x, 3x, mais 4x e toque longo marcados "a medir") e sheet do editor de macro no Mac. Estados: padrão, editor de macro aberto, aplicando e erro de escrita, em claro e escuro.</p>
+
+<ul class="note">
+  <li><b>Funções do fone no menu de cada célula:</b> nada, tocar/pausar, anterior, próxima, assistente, volume +, volume −, modo jogo e "Macro no Mac…".</li>
+  <li><b>Gestos "a medir":</b> 4x e toque longo permanecem sinalizados até a medição no protocolo confirmar os opcodes do MeloBuds Pro.</li>
+  <li><b>Macro no Mac:</b> tipos suportados (atalho de teclado, Atalho do app Atalhos, app/URL e script), campo de valor, botão Testar e aviso explícito de que scripts executam com as permissões do usuário atual.</li>
+</ul>
+
+<div id="root"></div>
+
+<script>
+const SVG_BUD_L = '<svg viewBox="0 0 40 44" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 10c-5 0-9 3.6-9 8.5 0 4.4 3 7.8 7 8.4V35a3 3 0 0 0 6 0V20.5c0-2.5 1.8-4 4-4.5 1.8-.4 3-1.7 3-3.2 0-1.6-1.4-2.8-3.4-2.8H16z"/><circle cx="15" cy="18.5" r="2.2"/></svg>';
+const SVG_BUD_R = '<svg viewBox="0 0 40 44" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M24 10c5 0 9 3.6 9 8.5 0 4.4-3 7.8-7 8.4V35a3 3 0 0 1-6 0V20.5c0-2.5-1.8-4-4-4.5-1.8-.4-3-1.7-3-3.2 0-1.6 1.4-2.8 3.4-2.8H24z"/><circle cx="25" cy="18.5" r="2.2"/></svg>';
+
+const FUNCS = [
+  ['none', 'Nada'],
+  ['play', 'Tocar / pausar'],
+  ['prev', 'Anterior'],
+  ['next', 'Próxima'],
+  ['assist', 'Assistente'],
+  ['vol_up', 'Volume +'],
+  ['vol_down', 'Volume −'],
+  ['game', 'Modo jogo'],
+  ['macro', 'Macro no Mac…']
+];
+
+const ROWS = [
+  { id: '1x', label: '1 toque', l: 'none', r: 'play' },
+  { id: '2x', label: '2x', l: 'prev', r: 'next' },
+  { id: '3x', label: '3x', l: 'macro', r: 'assist', lMacro: 'Macro: Mudo' },
+  { id: '4x', label: '4x', l: 'none', r: 'game', tbd: 1 },
+  { id: 'hold', label: 'Toque longo', l: 'vol_down', r: 'vol_up', tbd: 1 }
+];
+
+const S = {
+  padrao: {},
+  editorMacro: { sheet: 1 },
+  aplicando: { pending: 1 },
+  erro: { error: 1 }
+};
+
+const tabsBar = () => `<div class="tabs" role="tablist" aria-label="Abas do QCYBattery">
+  <button role="tab" aria-selected="false">Status</button>
+  <button role="tab" aria-selected="false">Som</button>
+  <button role="tab" aria-selected="true">Toques</button>
+  <button role="tab" aria-selected="false">Ajustes</button>
+</div>`;
+
+const banner = (s) => {
+  if (s.error) {
+    return `<div class="banner" role="alert"><div><b>O fone não respondeu</b><small>O mapeamento anterior foi mantido. Tente novamente.</small><div style="margin-top:8px"><button class="btn">Tentar de novo</button></div></div></div>`;
+  }
+  if (s.pending) {
+    return `<div class="banner info" role="status"><div><b><span class="spin" aria-hidden="true"></span>Aplicando no fone…</b><small>Aguardando confirmação do eco para salvar os toques.</small></div></div>`;
+  }
+  return '';
+};
+
+const cellMenu = (selected, macroLabel, off, aria) => {
+  const opts = FUNCS.map(([v, l]) => {
+    const text = (v === 'macro' && selected === 'macro' && macroLabel) ? macroLabel : l;
+    return `<option value="${v}"${selected === v ? ' selected' : ''}>${text}</option>`;
+  }).join('');
+  return `<select class="cell-sel ${selected === 'macro' ? 'macro' : ''}" aria-label="${aria}" ${off ? 'disabled tabindex="-1"' : ''}>${opts}</select>`;
+};
+
+const macroSheet = () => `<div class="sheet-scrim" role="dialog" aria-modal="true" aria-label="Editor de macro no Mac">
+  <div class="sheet">
+    <div class="sheet-hd">
+      <b>Macro no Mac</b>
+      <span class="caption">Gatilho: 3x · Lado esquerdo</span>
+    </div>
+    <div class="sheet-bd">
+      <div class="field">
+        <label>Tipo de ação</label>
+        <select aria-label="Tipo de ação">
+          <option value="hotkey">Atalho de teclado</option>
+          <option value="shortcut">Atalho (Shortcuts)</option>
+          <option value="app">App ou URL</option>
+          <option value="script" selected>Script</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Valor</label>
+        <input class="inp mono" type="text" value="~/Scripts/toggle-mic.sh" aria-label="Valor da macro">
+        <span class="caption">Ex.: ⌘⇧M, nome do Atalho, caminho de app/URL ou script executável.</span>
+      </div>
+      <div class="banner warn" role="note">
+        <div>
+          <b>Permissões do seu usuário</b>
+          <small>Scripts rodam com as mesmas permissões da sua conta no macOS. Revise o comando antes de testar ou salvar.</small>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-ft">
+      <button class="btn">Testar</button>
+      <div class="sheet-ft-r">
+        <button class="btn">Cancelar</button>
+        <button class="btn primary">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+const win = (s) => {
+  const off = s.pending || s.sheet;
+  return `<div class="window">
+    <div class="tb">
+      <div class="tb-title">QCY MeloBuds Pro</div>
+      ${tabsBar()}
+    </div>
+    <div class="bd">
+      ${banner(s)}
+      <div class="group ${s.pending ? 'dis' : ''}">
+        <div class="buds">
+          <div class="caption">Gesto</div>
+          <div class="bud-col">${SVG_BUD_L}<b>Esquerdo</b><span>L</span></div>
+          <div class="bud-col">${SVG_BUD_R}<b>Direito</b><span>R</span></div>
+        </div>
+        ${ROWS.map(r => `<div class="g-row ${r.tbd ? 'tbd' : ''}">
+          <div class="g-lbl"><div>${r.label}</div>${r.tbd ? '<span class="pill">a medir</span>' : ''}</div>
+          <div>${cellMenu(r.l, r.lMacro, off || r.tbd, `${r.label}, lado esquerdo`)}</div>
+          <div>${cellMenu(r.r, r.rMacro, off || r.tbd, `${r.label}, lado direito`)}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    ${s.sheet ? macroSheet() : ''}
+  </div>`;
+};
+
+const states = [
+  ['padrao', 'Padrão', 'Gestos 1x/2x/3x editáveis (3x esquerdo com macro no Mac); 4x e toque longo marcados "a medir"'],
+  ['editorMacro', 'Editor de macro aberto', 'Sheet com seletor de tipo, campo de valor, botão Testar e aviso de permissões para scripts'],
+  ['aplicando', 'Aplicando', 'Mapeamento enviado ao fone; menus desabilitados até o eco confirmar'],
+  ['erro', 'Erro de escrita', 'Sem eco do fone; configuração anterior mantida com botão Tentar de novo']
+];
+
+document.getElementById('root').innerHTML = states.map(([k, h, sub]) =>
+  `<section class="state"><h2>${h}</h2><p class="caption" style="margin:0 0 12px">${sub}</p><div class="pair">${win(S[k])}</div></section>`
+).join('');
+
+document.querySelectorAll('.pair').forEach(p => {
+  const html = p.innerHTML;
+  p.innerHTML = ['light', 'dark'].map(t =>
+    `<div class="theme ${t}"><div style="width:100%"><p class="tag">${t === 'light' ? 'Claro' : 'Escuro'}</p>${html}</div></div>`
+  ).join('');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>T14 · Aba Som</title>
+<style>
+/* Tokens do DESIGN.md (herdados do proto.css do LogiBattery), embutidos para protótipo autocontido. */
+:root{--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--r-sm:6px;--r-md:10px;--r-lg:14px;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;font-size:13px;line-height:18px}
+.theme.light{--background:#ececec;--surface:#fff;--raised:#f4f4f5;--fg:#1d1d1f;--muted:#6e6e73;--border:#d2d2d7;
+  --primary:#0a64f0;--primary-fg:#fff;--success:#1f9d55;--warning:#b7791f;--danger:#c53030;--info:#2b6cb0;--disabled:#a1a1a6;
+  --backdrop:#c9d4e6}
+.theme.dark{--background:#2a2a2d;--surface:#38383b;--raised:#1f1f21;--fg:#f5f5f7;--muted:#a1a1a6;--border:#4d4d52;
+  --primary:#3b8bff;--primary-fg:#fff;--success:#34c77b;--warning:#f2b13c;--danger:#ff6b6b;--info:#63b3ed;--disabled:#636366;
+  --backdrop:#2c3a52}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f5f7;color:#1d1d1f;padding:var(--s5)}
+h1{font-size:22px;line-height:28px;margin:0 0 var(--s1)}
+.lead{color:#6e6e73;margin:0 0 var(--s5);max-width:74ch}
+.state{margin:0 0 var(--s6)}
+.state>h2{font-size:17px;line-height:22px;margin:0 0 var(--s2)}
+.pair{display:flex;gap:var(--s5);flex-wrap:wrap}
+.theme{padding:var(--s5);border-radius:var(--r-lg);background:var(--backdrop);color:var(--fg);display:flex;align-items:flex-start;gap:var(--s4);flex-wrap:wrap;min-width:340px}
+.tag{font-size:10px;line-height:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 var(--s2)}
+.tabular{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.caption{font-size:11px;line-height:14px;color:var(--muted)}
+/* janela (468 pt, igual à T12) */
+.window{width:468px;background:var(--background);border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:0 8px 24px rgba(0,0,0,.25);overflow:hidden}
+.window .tb{padding:var(--s3) var(--s4) var(--s2);border-bottom:1px solid var(--border);display:grid;gap:var(--s2)}
+.window .tb-title{font-weight:600;text-align:center;font-size:13px}
+.window .bd{padding:var(--s4);display:grid;gap:var(--s3)}
+/* barra de abas segmentada (Status / Som / Toques / Ajustes) */
+.tabs{display:flex;background:var(--raised);border:1px solid var(--border);border-radius:8px;padding:2px;gap:2px}
+.tabs button{flex:1;font:inherit;font-size:12px;border:0;background:transparent;color:var(--muted);padding:4px 8px;border-radius:6px;min-height:24px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--fg);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+/* grupos e linhas */
+.group{background:var(--surface);border-radius:var(--r-md)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:var(--s3) var(--s4)}
+.row+.row{border-top:1px solid var(--border)}
+.row label{font-weight:500}
+.row label small{display:block;color:var(--muted);font-size:11px;line-height:14px;font-weight:400;margin-top:1px}
+.row.stack{flex-direction:column;align-items:stretch;gap:var(--s2)}
+/* grade de efeitos de som */
+.fx-hd{display:flex;align-items:center;justify-content:space-between;padding:var(--s3) var(--s4) 0}
+.fx-hd b{font-size:13px;font-weight:600}
+.pager{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.pager button{font:inherit;width:22px;height:22px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--raised);color:var(--fg);cursor:pointer;display:grid;place-items:center;padding:0}
+.pager button:disabled{opacity:.4;cursor:default}
+.dots{display:inline-flex;gap:4px;align-items:center}
+.dots i{display:block;width:6px;height:6px;border-radius:50%;background:var(--border)}
+.dots i.on{background:var(--primary)}
+.fx-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s2);padding:var(--s3) var(--s4)}
+.fx-tile{display:flex;align-items:center;gap:var(--s2);padding:10px var(--s3);border-radius:var(--r-sm);border:1px solid var(--border);background:var(--raised);color:var(--fg);text-align:left;cursor:pointer;font:inherit}
+.fx-tile .fx-ic{width:28px;height:28px;border-radius:6px;background:var(--surface);display:grid;place-items:center;color:var(--muted);flex:none}
+.fx-tile .fx-ic svg{width:16px;height:16px}
+.fx-tile b{display:block;font-size:12px;line-height:15px;font-weight:600}
+.fx-tile small{display:block;font-size:11px;line-height:14px;color:var(--muted)}
+.fx-tile[aria-pressed="true"]{border-color:var(--primary);background:var(--primary);color:var(--primary-fg)}
+.fx-tile[aria-pressed="true"] small{color:var(--primary-fg);opacity:.85}
+.fx-tile[aria-pressed="true"] .fx-ic{background:rgba(255,255,255,.18);color:var(--primary-fg)}
+.fx-foot{padding:0 var(--s4) var(--s3);font-size:11px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+/* switch (igual ao proto.css) */
+.sw{appearance:none;width:38px;height:22px;border-radius:11px;background:var(--disabled);position:relative;cursor:pointer;flex:none}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .12s ease-out}
+.sw:checked{background:var(--success)}.sw:checked::after{left:18px}
+@media (prefers-reduced-motion:reduce){.sw::after{transition:none}}
+/* balanço de canal */
+.bal-top{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
+.bal-val{display:inline-flex;align-items:center;gap:var(--s2)}
+.bal-slider{display:grid;grid-template-columns:36px 1fr 36px;align-items:center;gap:var(--s2)}
+.bal-slider span{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.bal-slider span:last-child{text-align:right}
+input[type="range"]{width:100%;accent-color:var(--primary);cursor:pointer;margin:0}
+/* disclosure recolhido de EQ personalizado */
+.disc{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding:var(--s3) var(--s4);width:100%;border:0;background:transparent;color:var(--fg);font:inherit;text-align:left;cursor:pointer}
+.disc-left{display:flex;align-items:center;gap:var(--s2)}
+.disc-chev{font-size:11px;color:var(--muted);display:inline-block;width:12px}
+.pill{font-size:10px;line-height:13px;padding:2px 7px;border-radius:999px;background:var(--raised);border:1px solid var(--border);color:var(--muted);font-weight:500;white-space:nowrap}
+/* botões, banners, estados */
+.btn{font:inherit;font-size:12px;border:1px solid var(--border);background:var(--surface);color:var(--fg);padding:3px 10px;border-radius:var(--r-sm);min-height:24px;cursor:pointer}
+.btn:disabled{opacity:.45;cursor:default}
+.dis{opacity:.55}
+.dis button,.dis input{cursor:default;pointer-events:none}
+.banner{display:flex;gap:var(--s3);padding:var(--s3);border-radius:var(--r-md);background:var(--surface);border-left:3px solid var(--danger)}
+.banner.info{border-left-color:var(--info)}
+.banner b{display:block}
+.banner small{display:block;color:var(--muted);font-size:11px;line-height:14px;margin-top:2px}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none;border-top-color:var(--border);border-left-color:var(--primary)}}
+.note{max-width:82ch;margin:0 0 var(--s4);padding-left:20px}
+.note li{margin-bottom:var(--s1)}
+</style>
+</head>
+<body>
+<h1>T14 · Aba Som</h1>
+<p class="lead">Aba Som da janela principal (468 pt) com barra de abas segmentada, grade paginada de efeitos de som (Espacial, Padrão, Pop, Graves pesados e segunda página), switch de voz reforçada, controle de balanço de canal L100..R100 com botão Redefinir e seção recolhida de EQ personalizado condicionada ao firmware. Estados: padrão, aplicando, erro e somente leitura, em claro e escuro.</p>
+
+<ul class="note">
+  <li><b>Segunda página da grade:</b> a paginação alterna entre Página 1 (Espacial, Padrão, Pop, Graves pesados) e Página 2 (Rock, Clássica, Suave, Acústico); os nomes finais dependem da medição do protocolo.</li>
+  <li><b>Balanço de canal:</b> vai de <code>L100</code> a <code>R100</code> com centro em <code>0</code>; o botão "Redefinir" volta para o centro e fica desabilitado quando já está em 0.</li>
+  <li><b>EQ personalizado:</b> inicia recolhido e só habilita a expansão se o firmware reportar suporte a bandas customizadas.</li>
+</ul>
+
+<div id="root"></div>
+
+<script>
+const IC = {
+  spatial: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="2.5"/><path d="M5.5 6.5a6.5 6.5 0 0 0 0 7M14.5 6.5a6.5 6.5 0 0 1 0 7M3 4.5a9.5 9.5 0 0 0 0 11M17 4.5a9.5 9.5 0 0 1 0 11"/></svg>',
+  flat: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 10h14M6 7v6M10 6v8M14 7v6"/></svg>',
+  pop: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 13V8M8 15V5M12 14V7M16 12V9"/></svg>',
+  bass: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="6.5"/><circle cx="10" cy="10" r="2.2"/></svg>'
+};
+
+const PAGES = [
+  [
+    { id: 'spatial', name: 'Espacial', sub: 'Palco amplo', ic: IC.spatial },
+    { id: 'default', name: 'Padrão', sub: 'Curva equilibrada', ic: IC.flat },
+    { id: 'pop', name: 'Pop', sub: 'Agudos e brilho', ic: IC.pop },
+    { id: 'bass', name: 'Graves pesados', sub: 'Subgraves reforçados', ic: IC.bass }
+  ],
+  [
+    { id: 'rock', name: 'Rock', sub: 'Médios marcados', ic: IC.pop },
+    { id: 'classic', name: 'Clássica', sub: 'Dinâmica aberta', ic: IC.spatial },
+    { id: 'soft', name: 'Suave', sub: 'Agudos atenuados', ic: IC.flat },
+    { id: 'acoustic', name: 'Acústico', sub: 'Voz e cordas', ic: IC.bass }
+  ]
+];
+
+const S = {
+  padrao: { preset: 'spatial', page: 0, vocal: 1, balance: -15 },
+  aplicando: { preset: 'bass', page: 0, vocal: 1, balance: -15, pending: 1 },
+  erro: { preset: 'spatial', page: 0, vocal: 1, balance: -15, error: 1 },
+  somenteLeitura: { preset: 'default', page: 0, vocal: 0, balance: 0, readonly: 1 }
+};
+
+const tabsBar = () => `<div class="tabs" role="tablist" aria-label="Abas do QCYBattery">
+  <button role="tab" aria-selected="false">Status</button>
+  <button role="tab" aria-selected="true">Som</button>
+  <button role="tab" aria-selected="false">Toques</button>
+  <button role="tab" aria-selected="false">Ajustes</button>
+</div>`;
+
+const banner = (s) => {
+  if (s.error) {
+    return `<div class="banner" role="alert"><div><b>O fone não respondeu</b><small>O perfil de som anterior foi mantido. Tente novamente com o fone conectado.</small><div style="margin-top:8px"><button class="btn">Tentar de novo</button></div></div></div>`;
+  }
+  if (s.pending) {
+    return `<div class="banner info" role="status"><div><b><span class="spin" aria-hidden="true"></span>Aplicando no fone…</b><small>Aguardando confirmação do eco para atualizar o efeito.</small></div></div>`;
+  }
+  if (s.readonly) {
+    return `<div class="banner info" role="note"><div><b>Somente leitura</b><small>Os controles de som ficam desabilitados e nenhuma escrita é enviada ao fone.</small></div></div>`;
+  }
+  return '';
+};
+
+const fmtBal = (v) => v === 0 ? 'Centro (0)' : (v < 0 ? `L ${Math.abs(v)}` : `R ${v}`);
+
+const win = (s) => {
+  const off = s.pending || s.readonly;
+  const items = PAGES[s.page];
+  return `<div class="window">
+    <div class="tb">
+      <div class="tb-title">QCY MeloBuds Pro</div>
+      ${tabsBar()}
+    </div>
+    <div class="bd">
+      ${banner(s)}
+      <div class="group ${off ? 'dis' : ''}">
+        <div class="fx-hd">
+          <b>Efeitos de som</b>
+          <div class="pager" aria-label="Paginação de efeitos">
+            <button aria-label="Página anterior" ${s.page === 0 || off ? 'disabled' : ''}>‹</button>
+            <span class="dots" aria-hidden="true"><i class="${s.page === 0 ? 'on' : ''}"></i><i class="${s.page === 1 ? 'on' : ''}"></i></span>
+            <span class="tabular">${s.page + 1}/2</span>
+            <button aria-label="Próxima página" ${s.page === 1 || off ? 'disabled' : ''}>›</button>
+          </div>
+        </div>
+        <div class="fx-grid" role="group" aria-label="Grade de efeitos de som">
+          ${items.map(it => `<button class="fx-tile" aria-pressed="${s.preset === it.id}" ${off ? 'tabindex="-1"' : ''}>
+            <span class="fx-ic">${it.ic}</span>
+            <span><b>${it.name}</b><small>${it.sub}</small></span>
+          </button>`).join('')}
+        </div>
+        <div class="fx-foot">
+          <span>Página 2: Rock, Clássica, Suave, Acústico</span>
+          <span>Gravado no fone</span>
+        </div>
+      </div>
+
+      <div class="group ${off ? 'dis' : ''}">
+        <div class="row">
+          <label>Voz reforçada<small>Destaca frequências vocais em chamadas e podcasts</small></label>
+          <input class="sw" type="checkbox" role="switch" aria-label="Voz reforçada" ${s.vocal ? 'checked' : ''} ${off ? 'disabled tabindex="-1"' : ''}>
+        </div>
+        <div class="row stack">
+          <div class="bal-top">
+            <label>Balanço de canal<small>Compensação entre esquerdo e direito</small></label>
+            <div class="bal-val">
+              <span class="caption tabular">${fmtBal(s.balance)}</span>
+              <button class="btn" ${s.balance === 0 || off ? 'disabled' : ''}>Redefinir</button>
+            </div>
+          </div>
+          <div class="bal-slider">
+            <span>L100</span>
+            <input type="range" min="-100" max="100" value="${s.balance}" aria-label="Balanço de canal" ${off ? 'disabled tabindex="-1"' : ''}>
+            <span>R100</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="group ${off ? 'dis' : ''}">
+        <button class="disc" aria-expanded="false" ${off ? 'tabindex="-1"' : ''}>
+          <span class="disc-left">
+            <span class="disc-chev" aria-hidden="true">▸</span>
+            <span><b style="display:block;font-weight:500">EQ personalizado</b><small class="caption">Ajuste por bandas quando exposto pelo protocolo</small></span>
+          </span>
+          <span class="pill">se o firmware tiver</span>
+        </button>
+      </div>
+    </div>
+  </div>`;
+};
+
+const states = [
+  ['padrao', 'Padrão', 'Espacial selecionado, voz reforçada ligada, balanço em L 15 com Redefinir ativo e EQ personalizado recolhido'],
+  ['aplicando', 'Aplicando', 'Efeito enviado ao fone; grade e controles travados até o eco confirmar'],
+  ['erro', 'Erro de escrita', 'Sem resposta do fone; efeito anterior preservado com ação de tentar de novo'],
+  ['somenteLeitura', 'Somente leitura', 'Modo --read-only: todos os ajustes de som ficam desabilitados']
+];
+
+document.getElementById('root').innerHTML = states.map(([k, h, sub]) =>
+  `<section class="state"><h2>${h}</h2><p class="caption" style="margin:0 0 12px">${sub}</p><div class="pair">${win(S[k])}</div></section>`
+).join('');
+
+document.querySelectorAll('.pair').forEach(p => {
+  const html = p.innerHTML;
+  p.innerHTML = ['light', 'dark'].map(t =>
+    `<div class="theme ${t}"><div style="width:100%"><p class="tag">${t === 'light' ? 'Claro' : 'Escuro'}</p>${html}</div></div>`
+  ).join('');
+});
+</script>
+</body>
+</html>
