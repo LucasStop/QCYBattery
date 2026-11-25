@@ -23,7 +23,11 @@ struct QCYBatteryApp: App {
 
     var body: some Scene {
         Window("qcy.window", id: "main") {
-            QCYView(model: sharedModel, preferences: sharedPreferences)
+            QCYView(
+                model: sharedModel,
+                preferences: sharedPreferences,
+                macroStore: sharedMacroStore
+            )
         }
         .windowResizability(.contentSize)
 
@@ -86,5 +90,6 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
     link: QCYClient(),
     isReadOnly: CommandLine.arguments.contains("--read-only"),
     notifier: sharedNotifier,
-    alertSettings: { sharedPreferences.batteryAlertSettings }
+    alertSettings: { sharedPreferences.batteryAlertSettings },
+    macroStore: sharedMacroStore
 )

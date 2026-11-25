@@ -37,15 +37,27 @@ final class MacroStore {
     @ObservationIgnored let fileURL: URL
     @ObservationIgnored private let fileManager: FileManager
     @ObservationIgnored private let logger: any MacroLogging
+    @ObservationIgnored private let persistToDisk: Bool
 
     init(
         fileURL: URL = MacroStore.defaultFileURL(),
         fileManager: FileManager = .default,
-        logger: any MacroLogging = OSMacroLogger()
+        logger: any MacroLogging = OSMacroLogger(),
+        persistToDisk: Bool = true
     ) {
         self.fileURL = fileURL
         self.fileManager = fileManager
         self.logger = logger
+        self.persistToDisk = persistToDisk
+    }
+
+    /// Store somente em memória para previews e testes sem escrita em disco.
+    static func inMemory(macros: [Macro] = []) -> MacroStore {
+        let store = MacroStore(persistToDisk: false)
+        if !macros.isEmpty {
+            try? store.save(macros)
+        }
+        return store
     }
 
     static func defaultFileURL(fileManager: FileManager = .default) -> URL {
@@ -112,21 +124,23 @@ final class MacroStore {
     func save(_ updated: [Macro]) throws {
         try Self.validateUniqueTriggers(updated)
 
-        let directoryURL = fileURL.deletingLastPathComponent()
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        let document = MacroStoreDocument(
-            version: MacroStoreDocument.currentVersion,
-            macros: updated
-        )
+        if persistToDisk {
+            let directoryURL = fileURL.deletingLastPathComponent()
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            let document = MacroStoreDocument(
+                version: MacroStoreDocument.currentVersion,
+                macros: updated
+            )
 
-        do {
-            try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
-            let encoded = try encoder.encode(document)
-            try encoded.write(to: fileURL, options: .atomic)
-        } catch {
-            logger.error("macros.json save failed: io_error")
-            throw MacroStoreError.persistenceFailed
+            do {
+                try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+                let encoded = try encoder.encode(document)
+                try encoded.write(to: fileURL, options: .atomic)
+            } catch {
+                logger.error("macros.json save failed: io_error")
+                throw MacroStoreError.persistenceFailed
+            }
         }
 
         macros = updated

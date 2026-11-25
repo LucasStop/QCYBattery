@@ -1,21 +1,92 @@
 import QCYKit
 import SwiftUI
 
-/// Aba Toques da janela principal (T15): desenho dos fones L/R e remapeamento dos 6 gestos medidos (1x, 2x e 3x).
+/// Aba Toques da janela principal (T15): desenho dos fones L/R, remapeamento dos 6 gestos medidos (1x, 2x e 3x)
+/// e editor de "Macro no Mac" em sheet modal.
 struct QCYTouchView: View {
     @Bindable var model: QCYViewModel
+    @Bindable var macroStore: MacroStore
+    private let macroRunner: MacroRunner
+
+    @State private var editorModel: MacroEditorModel?
+    @State private var pendingRemoval: PendingMacroRemoval?
+    @State private var showOfflineSavedBanner = false
+    @State private var removalFailed = false
 
     private let labelColumnWidth: CGFloat = 92
+
+    init(
+        model: QCYViewModel,
+        macroStore: MacroStore? = nil,
+        macroRunner: MacroRunner = MacroRunner()
+    ) {
+        self.model = model
+        self.macroStore = macroStore ?? model.macroStore
+        self.macroRunner = macroRunner
+    }
 
     var body: some View {
         VStack(spacing: 12) {
             QCYStatusBanner(model: model)
+            if showOfflineSavedBanner {
+                QCYBanner(
+                    tint: Color(light: 0x2B6CB0, dark: 0x63B3ED),
+                    title: "qcy.touch.macro.offlineSaved.title",
+                    detail: "qcy.touch.macro.offlineSaved.detail",
+                    action: ("qcy.touch.macro.offlineSaved.dismiss", { showOfflineSavedBanner = false })
+                )
+            }
+            if removalFailed {
+                QCYBanner(
+                    tint: BatteryLevel.critical.color,
+                    title: "qcy.macro.editor.saveError.title",
+                    detail: "qcy.macro.error.persistenceFailed",
+                    action: ("qcy.touch.macro.offlineSaved.dismiss", { removalFailed = false })
+                )
+            }
             gesturesGroup
+        }
+        .onChange(of: model.phase) { _, newPhase in
+            if newPhase == .connected {
+                showOfflineSavedBanner = false
+            }
+        }
+        .sheet(item: $editorModel) { editor in
+            QCYMacroEditorView(
+                model: editor,
+                isEarbudsConnected: model.phase == .connected,
+                onCancel: { editorModel = nil },
+                onSave: { saveEditor(editor) }
+            )
+        }
+        .alert(
+            "qcy.touch.macro.removeConfirm.title",
+            isPresented: removalAlertBinding,
+            presenting: pendingRemoval
+        ) { removal in
+            Button("qcy.touch.macro.removeConfirm.action", role: .destructive) {
+                confirmRemoval(removal)
+            }
+            Button("qcy.macro.editor.cancel", role: .cancel) {
+                pendingRemoval = nil
+            }
+        } message: { removal in
+            Text(removalMessage(for: removal))
         }
     }
 
+    private var removalAlertBinding: Binding<Bool> {
+        Binding(
+            get: { pendingRemoval != nil },
+            set: { isPresented in
+                if !isPresented { pendingRemoval = nil }
+            }
+        )
+    }
+
     private var gesturesGroup: some View {
-        QCYGroup {
+        let isMenuBlocked = model.isReadOnly || model.pending != nil
+        return QCYGroup {
             VStack(spacing: 0) {
                 earbudsHeader
                 ForEach(QCYGesture.Tap.allCases, id: \.self) { tap in
@@ -23,8 +94,8 @@ struct QCYTouchView: View {
                     gestureRow(for: tap)
                 }
             }
-            .disabled(model.areControlsDisabled)
-            .opacity(model.areControlsDisabled && model.pending == nil ? 0.55 : 1)
+            .disabled(isMenuBlocked)
+            .opacity(model.isReadOnly ? 0.55 : 1)
         }
     }
 
@@ -64,151 +135,235 @@ struct QCYTouchView: View {
             Text(tap.localizedTitle)
                 .font(.system(size: 12, weight: .medium))
                 .frame(width: labelColumnWidth, alignment: .leading)
-            QCYGestureCell(
-                selection: model.keyMap[leftGesture],
-                accessibilityLabel: cellAccessibilityLabel(tap: tap, side: "qcy.side.left")
-            ) { function in
-                model.choose(function: function, for: leftGesture)
-            }
-            QCYGestureCell(
-                selection: model.keyMap[rightGesture],
-                accessibilityLabel: cellAccessibilityLabel(tap: tap, side: "qcy.side.right")
-            ) { function in
-                model.choose(function: function, for: rightGesture)
-            }
+            gestureCell(for: leftGesture, sideKey: "qcy.side.left")
+            gestureCell(for: rightGesture, sideKey: "qcy.side.right")
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 14)
     }
+}
 
-    private func cellAccessibilityLabel(tap: QCYGesture.Tap, side: String) -> Text {
+private extension QCYTouchView {
+    func gestureCell(for gesture: QCYGesture, sideKey: String) -> some View {
+        let macro = macroForGesture(gesture)
+        return QCYGestureCell(
+            selection: model.keyMap[gesture],
+            macro: macro,
+            isEarbudsActionDisabled: model.areControlsDisabled,
+            accessibilityLabel: cellAccessibilityLabel(tap: gesture.tap, side: sideKey),
+            onSelect: { function in
+                model.choose(function: function, for: gesture)
+            },
+            onEditMacro: {
+                openMacroEditor(for: gesture)
+            },
+            onRemoveMacro: {
+                if let macro {
+                    pendingRemoval = PendingMacroRemoval(gesture: gesture, macro: macro)
+                }
+            }
+        )
+    }
+
+    func macroForGesture(_ gesture: QCYGesture) -> Macro? {
+        guard let function = model.keyMap[gesture],
+              let trigger = MediaCommand(keyFunction: function) else {
+            return nil
+        }
+        return macroStore.macro(for: trigger)
+    }
+
+    func openMacroEditor(for gesture: QCYGesture) {
+        editorModel = MacroEditorModel(
+            targetGesture: gesture,
+            store: macroStore,
+            keyMap: model.keyMap,
+            runner: macroRunner
+        )
+    }
+
+    func saveEditor(_ editor: MacroEditorModel) {
+        do {
+            let outcome = try editor.save(isEarbudsConnected: model.phase == .connected) { function, gesture in
+                model.choose(function: function, for: gesture)
+            }
+            guard let outcome else { return }
+            editorModel = nil
+            switch outcome {
+            case .savedAndApplied:
+                showOfflineSavedBanner = false
+            case .savedOffline:
+                showOfflineSavedBanner = true
+            }
+        } catch {
+            // `editor.saveError` já exibe a falha dentro do sheet.
+        }
+    }
+
+    func confirmRemoval(_ removal: PendingMacroRemoval) {
+        pendingRemoval = nil
+        do {
+            try macroStore.remove(id: removal.macro.id)
+            removalFailed = false
+            if model.phase == .connected, !model.isReadOnly {
+                model.choose(function: .unassigned, for: removal.gesture)
+            }
+        } catch {
+            removalFailed = true
+        }
+    }
+
+    func removalMessage(for removal: PendingMacroRemoval) -> String {
+        let shared = model.otherGestures(sharing: removal.macro.trigger, excluding: removal.gesture)
+        if shared.isEmpty {
+            return String(
+                format: String(localized: "qcy.touch.macro.removeConfirm.message"),
+                locale: .current,
+                removal.macro.name
+            )
+        }
+        let others = shared.map(\.formattedDisplayName).joined(separator: ", ")
+        return String(
+            format: String(localized: "qcy.touch.macro.removeConfirm.sharedMessage"),
+            locale: .current,
+            removal.macro.name,
+            others
+        )
+    }
+
+    func cellAccessibilityLabel(tap: QCYGesture.Tap, side: String) -> Text {
         Text(tap.localizedTitle) + Text(", ") + Text(LocalizedStringKey(side))
     }
 }
 
+private struct PendingMacroRemoval {
+    let gesture: QCYGesture
+    let macro: Macro
+}
+
 // MARK: - Célula de gesto
 
-/// Menu nativo por lado (`L` / `R`) com as 9 funções de `QCYKeyFunction` (DESIGN.md).
+/// Menu nativo por lado (`L` / `R`) com as 9 funções de `QCYKeyFunction`, "Macro no Mac…" e "Remover macro".
 struct QCYGestureCell: View {
     let selection: QCYKeyFunction?
+    let macro: Macro?
+    let isEarbudsActionDisabled: Bool
     let accessibilityLabel: Text
     let onSelect: (QCYKeyFunction) -> Void
+    let onEditMacro: () -> Void
+    let onRemoveMacro: () -> Void
 
     var body: some View {
-        Picker(selection: binding) {
-            if selection == nil {
-                Text("—").tag(Optional<QCYKeyFunction>.none)
-            }
+        Menu {
             ForEach(QCYKeyFunction.allCases, id: \.self) { function in
-                Text(function.localizedTitle).tag(Optional(function))
+                Button {
+                    onSelect(function)
+                } label: {
+                    if macro == nil, selection == function {
+                        Label(function.localizedTitle, systemImage: "checkmark")
+                    } else {
+                        Text(function.localizedTitle)
+                    }
+                }
+                .disabled(isEarbudsActionDisabled)
             }
-        } label: {
-            accessibilityLabel
-        }
-        .pickerStyle(.menu)
-        .labelsHidden()
-        .frame(maxWidth: .infinity)
-        .accessibilityLabel(accessibilityLabel)
-    }
-
-    private var binding: Binding<QCYKeyFunction?> {
-        Binding(
-            get: { selection },
-            set: { newValue in
-                if let newValue {
-                    onSelect(newValue)
+            Divider()
+            Button(action: onEditMacro) {
+                if macro != nil {
+                    Label("qcy.touch.macro.menuItem", systemImage: "checkmark")
+                } else {
+                    Text("qcy.touch.macro.menuItem")
                 }
             }
+            if macro != nil {
+                Button("qcy.touch.macro.remove", role: .destructive, action: onRemoveMacro)
+            }
+        } label: {
+            cellLabel
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .frame(maxWidth: .infinity)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityValue(accessibilityValueText)
+    }
+
+    private var cellLabel: some View {
+        let hasMacro = macro != nil
+        return HStack(spacing: 4) {
+            Text(displayText)
+                .font(.system(size: 12, weight: hasMacro ? .medium : .regular))
+                .foregroundStyle(textColor)
+                .lineLimit(1)
+                .truncationMode(.tail)
+            Spacer(minLength: 4)
+            Image(systemName: "chevron.down")
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(hasMacro ? Color.accentColor : Color.secondary)
+        }
+        .padding(.horizontal, 8)
+        .frame(maxWidth: .infinity, minHeight: 26, alignment: .leading)
+        .background(
+            Color(nsColor: .controlBackgroundColor),
+            in: RoundedRectangle(cornerRadius: 6, style: .continuous)
         )
+        .overlay(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .stroke(
+                    hasMacro ? Color.accentColor : Color.primary.opacity(0.18),
+                    lineWidth: 1
+                )
+        )
+    }
+
+    private var displayText: String {
+        if let macro {
+            return String(format: String(localized: "qcy.touch.macro.cell"), locale: .current, macro.name)
+        }
+        if let selection {
+            return String(localized: selection.localizedResource)
+        }
+        return "—"
+    }
+
+    private var textColor: Color {
+        if macro != nil { return .accentColor }
+        return selection == nil ? .secondary : .primary
+    }
+
+    private var accessibilityValueText: Text {
+        Text(displayText)
     }
 }
 
 // MARK: - Desenho dos fones
 
-/// Silhueta vetorial do fone esquerdo ou direito, espelhada no eixo horizontal para o lado R.
-private struct QCYEarbudGlyph: View {
-    let side: QCYGesture.Side
-
-    var body: some View {
-        QCYEarbudShape()
-            .stroke(style: StrokeStyle(lineWidth: 1.6, lineCap: .round, lineJoin: .round))
-            .scaleEffect(x: side == .right ? -1 : 1, y: 1)
-    }
-}
-
-private struct QCYEarbudShape: Shape {
-    func path(in rect: CGRect) -> Path {
-        let scaleX = rect.width / 40
-        let scaleY = rect.height / 44
-        func point(_ posX: CGFloat, _ posY: CGFloat) -> CGPoint {
-            CGPoint(x: rect.minX + posX * scaleX, y: rect.minY + posY * scaleY)
-        }
-
-        var path = Path()
-        path.move(to: point(16, 10))
-        path.addCurve(to: point(7, 18.5), control1: point(11, 10), control2: point(7, 13.6))
-        path.addCurve(to: point(14, 26.9), control1: point(7, 22.9), control2: point(10, 26.3))
-        path.addLine(to: point(14, 35))
-        path.addCurve(to: point(20, 35), control1: point(14, 39), control2: point(20, 39))
-        path.addLine(to: point(20, 20.5))
-        path.addCurve(to: point(24, 16), control1: point(20, 18), control2: point(21.8, 16.5))
-        path.addCurve(to: point(27, 12.8), control1: point(25.8, 15.6), control2: point(27, 14.3))
-        path.addCurve(to: point(23.6, 10), control1: point(27, 11.2), control2: point(25.6, 10))
-        path.closeSubpath()
-
-        let dotRect = CGRect(
-            x: rect.minX + 12.8 * scaleX,
-            y: rect.minY + 16.3 * scaleY,
-            width: 4.4 * scaleX,
-            height: 4.4 * scaleY
-        )
-        path.addEllipse(in: dotRect)
-        return path
-    }
-}
-
-// MARK: - Rótulos localizados
-
-extension QCYGesture.Tap {
-    var localizedTitle: LocalizedStringKey {
-        switch self {
-        case .single: "qcy.touch.tap.single"
-        case .double: "qcy.touch.tap.double"
-        case .triple: "qcy.touch.tap.triple"
-        }
-    }
-}
-
-extension QCYKeyFunction {
-    var localizedTitle: LocalizedStringKey {
-        switch self {
-        case .unassigned: "qcy.touch.function.unassigned"
-        case .playPause: "qcy.touch.function.playPause"
-        case .previousTrack: "qcy.touch.function.previousTrack"
-        case .nextTrack: "qcy.touch.function.nextTrack"
-        case .voiceAssistant: "qcy.touch.function.voiceAssistant"
-        case .volumeUp: "qcy.touch.function.volumeUp"
-        case .volumeDown: "qcy.touch.function.volumeDown"
-        case .lowLatency: "qcy.touch.function.lowLatency"
-        case .ancMode: "qcy.touch.function.ancMode"
-        }
-    }
-}
-
 #if DEBUG
+#Preview("Aba Toques — com macro") {
+    let store = previewMacroStore(macros: [
+        Macro(name: "Mudo", trigger: .play, action: .keyboardShortcut(keyCode: 46, modifiers: [.command, .shift]))
+    ])
+    return QCYTouchView(
+        model: previewModel(.connected, macroStore: store),
+        macroStore: store,
+        macroRunner: previewMacroRunner()
+    )
+    .padding(16)
+    .frame(width: 468)
+}
+
 #Preview("Aba Toques — conectado") {
-    QCYTouchView(model: previewModel(.connected))
-        .padding(16)
-        .frame(width: 468)
+    QCYTouchView(model: previewModel(.connected), macroRunner: previewMacroRunner())
+        .padding(16).frame(width: 468)
 }
+
 #Preview("Aba Toques — somente leitura") {
-    QCYTouchView(model: previewModel(.connected, readOnly: true))
-        .padding(16)
-        .frame(width: 468)
+    QCYTouchView(model: previewModel(.connected, readOnly: true), macroRunner: previewMacroRunner())
+        .padding(16).frame(width: 468)
 }
+
 #Preview("Aba Toques — sem conexão") {
-    QCYTouchView(model: previewModel(.disconnected))
-        .padding(16)
-        .frame(width: 468)
+    QCYTouchView(model: previewModel(.disconnected), macroRunner: previewMacroRunner())
+        .padding(16).frame(width: 468)
 }
 #endif

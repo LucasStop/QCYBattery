@@ -2,6 +2,12 @@
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), em português, uma seção por versão publicada. Cada PR `feat` ou `fix` traz a própria seção, com o que mudou e por quê; os demais tipos não entram. Seções: Adicionado, Alterado, Corrigido, Removido.
 
+## 0.9.0 - 2026-11-25
+
+### Adicionado
+
+- Editor de macro na aba Toques: o menu de cada gesto ganha "Macro no Mac…", com nome, comando de mídia, tipo da ação (atalho de teclado, Atalho, app/URL ou script), botão Testar e o aviso de que scripts rodam com as suas permissões. Sem a tela, o motor de macros da versão anterior não tinha como ser usado. Ao salvar, o app grava no gesto a função de mídia que serve de gatilho, e a música perde essa função naquele gesto; o texto do script nunca aparece em log.
+
 ## 0.8.1 - 2026-11-25
 
 ### Corrigido
