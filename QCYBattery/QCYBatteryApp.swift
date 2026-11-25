@@ -1,3 +1,4 @@
+import AppIntents
 import AppKit
 import QCYKit
 import SwiftUI
@@ -7,6 +8,11 @@ import SwiftUI
 struct QCYBatteryApp: App {
     @NSApplicationDelegateAdaptor private var appDelegate: AppDelegate
     @Environment(\.openWindow) private var openWindow
+
+    init() {
+        let model = sharedModel
+        AppDependencyManager.shared.add(dependency: model)
+    }
 
     private var menuBarInserted: Binding<Bool> {
         Binding(
