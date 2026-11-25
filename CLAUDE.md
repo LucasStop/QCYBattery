@@ -3,7 +3,7 @@
 Contexto do repo para a CLI de IA. Regras globais em `~/.claude/CLAUDE.md` valem; aqui só o específico. `CLAUDE.md`, `AGENTS.md` e `GEMINI.md` são o mesmo arquivo (symlinks).
 
 ## O que é
-App nativo macOS (janela única, sem barra de menu, widget nem histórico) do fone QCY MeloBuds Pro: bateria por lado, firmware, MAC e controles de cena de ANC, LDAC e modo jogo. O protocolo mora no pacote [QCYKit](https://github.com/LucasStop/QCYKit). Saiu do repo do [LogiBattery](https://github.com/LucasStop/LogiBattery) em 2026-11-25 (ADR 0008 de lá); issues e PRs até ali (#132, #135, #140, #150) estão no LogiBattery.
+App nativo macOS (janela e barra de menu) do fone QCY MeloBuds Pro: bateria por lado, firmware, MAC, controles de cena de ANC, LDAC e modo jogo, e (planejado) aba de som, gestos com macros no Mac, ajustes com regras por contexto e App Intents para Atalhos. O protocolo mora no pacote [QCYKit](https://github.com/LucasStop/QCYKit). Saiu do repo do [LogiBattery](https://github.com/LucasStop/LogiBattery) em 2026-11-25 (ADR 0008 de lá); issues e PRs até ali (#132, #135, #140, #150) estão no LogiBattery.
 Perfil: monolito · Stack: Swift (SwiftUI, XcodeGen)
 
 ## Documentação (ler antes de mexer)
