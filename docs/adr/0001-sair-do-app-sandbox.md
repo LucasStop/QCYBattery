@@ -1,6 +1,6 @@
 # ADR 0001 — Saída do App Sandbox para macros no Mac
 
-- Status: proposta
+- Status: aceita (2026-11-25)
 - Data: 2026-11-25
 
 ## Contexto
