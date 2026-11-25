@@ -66,8 +66,11 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 /// Instâncias únicas: o ciclo de vida no `AppDelegate`, a janela e o item da barra de menu enxergam o mesmo estado.
+@MainActor private let sharedNotifier = UNBatteryNotifier()
+@MainActor private let sharedPreferences = PreferencesModel(notifier: sharedNotifier)
 @MainActor private let sharedModel = QCYViewModel(
     link: QCYClient(),
-    isReadOnly: CommandLine.arguments.contains("--read-only")
+    isReadOnly: CommandLine.arguments.contains("--read-only"),
+    notifier: sharedNotifier,
+    alertSettings: { sharedPreferences.batteryAlertSettings }
 )
-@MainActor private let sharedPreferences = PreferencesModel()

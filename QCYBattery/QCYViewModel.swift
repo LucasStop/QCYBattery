@@ -70,18 +70,30 @@ final class QCYViewModel {
     let isReadOnly: Bool
 
     @ObservationIgnored private let link: any QCYLink
+    @ObservationIgnored private let notifier: any BatteryNotifying
+    @ObservationIgnored private let alertSettings: @MainActor () -> BatteryAlertSettings
     @ObservationIgnored private let writeTimeout: Duration
     @ObservationIgnored private let settleTimeout: Duration
     @ObservationIgnored private let pollInterval: Duration
+    @ObservationIgnored private var alertPolicy = BatteryAlertPolicy()
     @ObservationIgnored private var isLinked = false
     @ObservationIgnored private var lastTransparencyLevel: UInt8 = 3
     @ObservationIgnored private var writeTask: Task<Void, Never>?
     @ObservationIgnored private var settleTask: Task<Void, Never>?
     @ObservationIgnored private var pollTask: Task<Void, Never>?
 
-    init(link: any QCYLink, isReadOnly: Bool = false, writeTimeout: Duration = .seconds(3),
-         settleTimeout: Duration = .seconds(3), pollInterval: Duration = .seconds(30)) {
+    init(
+        link: any QCYLink,
+        isReadOnly: Bool = false,
+        writeTimeout: Duration = .seconds(3),
+        settleTimeout: Duration = .seconds(3),
+        pollInterval: Duration = .seconds(30),
+        notifier: any BatteryNotifying = NoOpBatteryNotifier(),
+        alertSettings: @escaping @MainActor () -> BatteryAlertSettings = { .allEnabled }
+    ) {
         self.link = link
+        self.notifier = notifier
+        self.alertSettings = alertSettings
         self.isReadOnly = isReadOnly
         self.writeTimeout = writeTimeout
         self.settleTimeout = settleTimeout
@@ -90,66 +102,6 @@ final class QCYViewModel {
         link.onAdvertisement = { [weak self] advertisement in Task { @MainActor in self?.receive(advertisement) } }
         link.onReady = { [weak self] in Task { @MainActor in self?.linkReady() } }
         link.onDisconnect = { [weak self] in Task { @MainActor in self?.linkLost() } }
-    }
-
-    // MARK: - Leitura
-
-    var ancChoice: QCYANCChoice? { state.ancScene.flatMap(QCYANCChoice.init(scene:)) }
-    var ancSelection: QCYANCChoice? {
-        if case .anc(let target)? = pending { return target }
-        return ancChoice
-    }
-    var isLDACOn: Bool {
-        if case .ldac(let value)? = pending { return value }
-        return state.isLDACEnabled ?? false
-    }
-    var isGameOn: Bool {
-        if case .game(let value)? = pending { return value }
-        return state.isLowLatencyEnabled ?? false
-    }
-    var soundEffect: QCYSoundEffect? {
-        if case .soundEffect(let target)? = pending { return target }
-        return state.soundEffect
-    }
-    var isVocalBoostAvailable: Bool { state.ancScene?.mode == 0x03 }
-    var isVocalBoostOn: Bool {
-        if case .vocalBoost(let enabled)? = pending { return enabled }
-        return state.ancScene?.mode == 0x03 && state.ancScene?.subScene == 0x02
-    }
-    var balance: UInt8 {
-        if case .balance(let target)? = pending { return target }
-        return state.balance ?? 50
-    }
-    var keyMap: [QCYGesture: QCYKeyFunction] {
-        var map = state.keyMap
-        if case .key(let gesture, let function)? = pending {
-            map[gesture] = function
-        }
-        return map
-    }
-    var powerOff: QCYPowerOff? {
-        if case .powerOff(let target)? = pending { return target }
-        return state.powerOff
-    }
-    var toneVolume: QCYToneVolume? {
-        if case .toneVolume(let target)? = pending { return target }
-        return state.toneVolume
-    }
-    var isWearDetectionAvailable: Bool { state.wearDetection != nil }
-    var isWearDetectionOn: Bool {
-        if case .wearDetection(let enabled)? = pending { return enabled }
-        return state.wearDetection?.isEnabled ?? false
-    }
-    var areControlsDisabled: Bool { isReadOnly || phase != .connected || pending != nil }
-
-    var isCharging: Bool {
-        phase == .connected && (state.left?.isCharging == true || state.right?.isCharging == true)
-    }
-
-    var menuBarText: String {
-        let left = phase == .connected ? state.left.map { "\($0.percent)%" } ?? "—" : "—"
-        let right = phase == .connected ? state.right.map { "\($0.percent)%" } ?? "—" : "—"
-        return "L \(left) · R \(right)"
     }
 
     // MARK: - Ciclo de vida
@@ -283,6 +235,9 @@ final class QCYViewModel {
         }
         phase = .connected
         settleTask?.cancel()
+        for alert in alertPolicy.evaluate(state: newState, settings: alertSettings()) {
+            notifier.notify(alert)
+        }
         guard let write = pending else { return }
         if isConfirmed(write) {
             pending = nil
@@ -343,5 +298,67 @@ final class QCYViewModel {
             guard !Task.isCancelled else { return }
             action()
         }
+    }
+}
+
+// MARK: - Leitura
+
+extension QCYViewModel {
+    var ancChoice: QCYANCChoice? { state.ancScene.flatMap(QCYANCChoice.init(scene:)) }
+    var ancSelection: QCYANCChoice? {
+        if case .anc(let target)? = pending { return target }
+        return ancChoice
+    }
+    var isLDACOn: Bool {
+        if case .ldac(let value)? = pending { return value }
+        return state.isLDACEnabled ?? false
+    }
+    var isGameOn: Bool {
+        if case .game(let value)? = pending { return value }
+        return state.isLowLatencyEnabled ?? false
+    }
+    var soundEffect: QCYSoundEffect? {
+        if case .soundEffect(let target)? = pending { return target }
+        return state.soundEffect
+    }
+    var isVocalBoostAvailable: Bool { state.ancScene?.mode == 0x03 }
+    var isVocalBoostOn: Bool {
+        if case .vocalBoost(let enabled)? = pending { return enabled }
+        return state.ancScene?.mode == 0x03 && state.ancScene?.subScene == 0x02
+    }
+    var balance: UInt8 {
+        if case .balance(let target)? = pending { return target }
+        return state.balance ?? 50
+    }
+    var keyMap: [QCYGesture: QCYKeyFunction] {
+        var map = state.keyMap
+        if case .key(let gesture, let function)? = pending {
+            map[gesture] = function
+        }
+        return map
+    }
+    var powerOff: QCYPowerOff? {
+        if case .powerOff(let target)? = pending { return target }
+        return state.powerOff
+    }
+    var toneVolume: QCYToneVolume? {
+        if case .toneVolume(let target)? = pending { return target }
+        return state.toneVolume
+    }
+    var isWearDetectionAvailable: Bool { state.wearDetection != nil }
+    var isWearDetectionOn: Bool {
+        if case .wearDetection(let enabled)? = pending { return enabled }
+        return state.wearDetection?.isEnabled ?? false
+    }
+    var areControlsDisabled: Bool { isReadOnly || phase != .connected || pending != nil }
+
+    var isCharging: Bool {
+        phase == .connected && (state.left?.isCharging == true || state.right?.isCharging == true)
+    }
+
+    var menuBarText: String {
+        let left = phase == .connected ? state.left.map { "\($0.percent)%" } ?? "—" : "—"
+        let right = phase == .connected ? state.right.map { "\($0.percent)%" } ?? "—" : "—"
+        return "L \(left) · R \(right)"
     }
 }

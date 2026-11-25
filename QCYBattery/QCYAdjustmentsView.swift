@@ -2,7 +2,7 @@ import QCYKit
 import SwiftUI
 
 /// Aba Ajustes da janela principal (T16): ajustes do fone (desligamento automático, volume dos avisos e detecção de
-/// uso) e preferências do app (barra de menu, Dock e abrir ao iniciar sessão).
+/// uso), preferências do app (barra de menu, Dock e abrir ao iniciar sessão) e alertas de bateria baixa por lado.
 struct QCYAdjustmentsView: View {
     @Bindable var model: QCYViewModel
     @Bindable var preferences: PreferencesModel
@@ -18,6 +18,8 @@ struct QCYAdjustmentsView: View {
             earbudsGroup
             sectionHeader("qcy.adjustments.section.app")
             QCYAppPreferencesGroup(preferences: preferences)
+            sectionHeader("qcy.adjustments.section.batteryAlerts")
+            batteryAlertsGroup
         }
     }
 
@@ -104,6 +106,61 @@ struct QCYAdjustmentsView: View {
         .padding(12)
         .disabled(isRowDisabled)
         .opacity(isDimmed ? 0.55 : 1)
+    }
+
+    // MARK: - Alertas de bateria baixa
+
+    private var batteryAlertsGroup: some View {
+        QCYGroup {
+            VStack(spacing: 0) {
+                batteryAlertRow(
+                    dotColor: BatteryLevel.low.color,
+                    title: "qcy.adjustments.batteryAlerts.low.title",
+                    hint: "qcy.adjustments.batteryAlerts.low.hint",
+                    isOn: Binding(
+                        get: { preferences.lowBatteryAlertEnabled },
+                        set: { preferences.setLowBatteryAlert($0) }
+                    )
+                )
+                Divider()
+                batteryAlertRow(
+                    dotColor: BatteryLevel.critical.color,
+                    title: "qcy.adjustments.batteryAlerts.critical.title",
+                    hint: "qcy.adjustments.batteryAlerts.critical.hint",
+                    isOn: Binding(
+                        get: { preferences.criticalBatteryAlertEnabled },
+                        set: { preferences.setCriticalBatteryAlert($0) }
+                    )
+                )
+            }
+        }
+    }
+
+    private func batteryAlertRow(
+        dotColor: Color,
+        title: LocalizedStringKey,
+        hint: LocalizedStringKey,
+        isOn: Binding<Bool>
+    ) -> some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(dotColor)
+                        .frame(width: 8, height: 8)
+                        .accessibilityHidden(true)
+                    Text(title)
+                }
+                Text(hint)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 8)
+            Toggle(title, isOn: isOn)
+                .labelsHidden()
+                .toggleStyle(.switch)
+        }
+        .padding(12)
     }
 }
 

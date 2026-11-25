@@ -36,7 +36,7 @@ final class SMAppServiceLaunchAtLogin: LaunchAtLoginControlling {
     }
 }
 
-/// Preferências de presença (barra de menu e Dock) e abertura no login (US-06).
+/// Preferências de presença (barra de menu e Dock), abertura no login (US-06) e alertas de bateria baixa (US-11).
 /// Pelo menos uma das visibilidades (barra de menu ou Dock) permanece sempre ativa.
 @MainActor
 @Observable
@@ -44,24 +44,32 @@ final class PreferencesModel {
     private enum Key {
         static let showInMenuBar = "preferences.showInMenuBar"
         static let showInDock = "preferences.showInDock"
+        static let lowBatteryAlert = "preferences.lowBatteryAlert"
+        static let criticalBatteryAlert = "preferences.criticalBatteryAlert"
     }
 
     private(set) var showInMenuBar: Bool
     private(set) var showInDock: Bool
     private(set) var launchAtLogin: Bool
+    private(set) var lowBatteryAlertEnabled: Bool
+    private(set) var criticalBatteryAlertEnabled: Bool
 
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let policyApplier: any ActivationPolicyApplying
     @ObservationIgnored private let loginController: any LaunchAtLoginControlling
+    @ObservationIgnored private let notifier: any BatteryNotifying
+    @ObservationIgnored private var hasRequestedNotificationAuthorization = false
 
     init(
         defaults: UserDefaults = .standard,
         policyApplier: any ActivationPolicyApplying = AppActivationPolicyApplier(),
-        loginController: any LaunchAtLoginControlling = SMAppServiceLaunchAtLogin()
+        loginController: any LaunchAtLoginControlling = SMAppServiceLaunchAtLogin(),
+        notifier: any BatteryNotifying = NoOpBatteryNotifier()
     ) {
         self.defaults = defaults
         self.policyApplier = policyApplier
         self.loginController = loginController
+        self.notifier = notifier
 
         let storedMenuBar = defaults.object(forKey: Key.showInMenuBar) as? Bool ?? true
         let storedDock = defaults.object(forKey: Key.showInDock) as? Bool ?? true
@@ -73,6 +81,15 @@ final class PreferencesModel {
             self.showInDock = storedDock
         }
         self.launchAtLogin = loginController.isEnabled
+        self.lowBatteryAlertEnabled = defaults.object(forKey: Key.lowBatteryAlert) as? Bool ?? true
+        self.criticalBatteryAlertEnabled = defaults.object(forKey: Key.criticalBatteryAlert) as? Bool ?? true
+    }
+
+    var batteryAlertSettings: BatteryAlertSettings {
+        BatteryAlertSettings(
+            lowEnabled: lowBatteryAlertEnabled,
+            criticalEnabled: criticalBatteryAlertEnabled
+        )
     }
 
     var activationPolicy: NSApplication.ActivationPolicy {
@@ -112,5 +129,29 @@ final class PreferencesModel {
 
     func applyActivationPolicy() {
         policyApplier.apply(activationPolicy)
+    }
+
+    func setLowBatteryAlert(_ enabled: Bool) {
+        guard enabled != lowBatteryAlertEnabled else { return }
+        lowBatteryAlertEnabled = enabled
+        defaults.set(enabled, forKey: Key.lowBatteryAlert)
+        if enabled {
+            requestNotificationAuthorizationIfNeeded()
+        }
+    }
+
+    func setCriticalBatteryAlert(_ enabled: Bool) {
+        guard enabled != criticalBatteryAlertEnabled else { return }
+        criticalBatteryAlertEnabled = enabled
+        defaults.set(enabled, forKey: Key.criticalBatteryAlert)
+        if enabled {
+            requestNotificationAuthorizationIfNeeded()
+        }
+    }
+
+    private func requestNotificationAuthorizationIfNeeded() {
+        guard !hasRequestedNotificationAuthorization else { return }
+        hasRequestedNotificationAuthorization = true
+        notifier.requestAuthorization()
     }
 }

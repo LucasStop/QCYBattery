@@ -49,6 +49,70 @@
         }
       }
     },
+    "qcy.adjustments.batteryAlerts.critical.hint": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifica quando o lado esquerdo ou direito atingir 10%"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifies when the left or right earbud reaches 10%"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.batteryAlerts.critical.title": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crítico em 10%"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Critical at 10%"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.batteryAlerts.low.hint": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifica quando o lado esquerdo ou direito atingir 20%"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifies when the left or right earbud reaches 20%"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.batteryAlerts.low.title": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aviso em 20%"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Warning at 20%"
+          }
+        }
+      }
+    },
     "qcy.adjustments.powerOff.15": {
       "localizations": {
         "pt-BR": {
@@ -173,6 +237,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "App"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.section.batteryAlerts": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alertas de bateria baixa (por lado)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low battery alerts (per side)"
           }
         }
       }
@@ -317,6 +397,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "Wear detection"
+          }
+        }
+      }
+    },
+    "qcy.alert.battery.critical.title": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bateria crítica no fone"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Critical earbud battery"
+          }
+        }
+      }
+    },
+    "qcy.alert.battery.left.body": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lado esquerdo em %lld%%."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Left earbud at %lld%%."
+          }
+        }
+      }
+    },
+    "qcy.alert.battery.low.title": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bateria baixa no fone"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low earbud battery"
+          }
+        }
+      }
+    },
+    "qcy.alert.battery.right.body": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lado direito em %lld%%."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Right earbud at %lld%%."
           }
         }
       }

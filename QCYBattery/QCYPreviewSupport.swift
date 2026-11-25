@@ -83,16 +83,21 @@ func previewModel(_ scenario: PreviewScenario, readOnly: Bool = false) -> QCYVie
 func previewPreferences(
     showInMenuBar: Bool = true,
     showInDock: Bool = true,
-    launchAtLogin: Bool = true
+    launchAtLogin: Bool = true,
+    lowBatteryAlertEnabled: Bool = true,
+    criticalBatteryAlertEnabled: Bool = true
 ) -> PreferencesModel {
     let suiteName = "com.lucasstop.QCYBattery.preview.\(UUID().uuidString)"
     let defaults = UserDefaults(suiteName: suiteName) ?? .standard
     defaults.set(showInMenuBar, forKey: "preferences.showInMenuBar")
     defaults.set(showInDock, forKey: "preferences.showInDock")
+    defaults.set(lowBatteryAlertEnabled, forKey: "preferences.lowBatteryAlert")
+    defaults.set(criticalBatteryAlertEnabled, forKey: "preferences.criticalBatteryAlert")
     return PreferencesModel(
         defaults: defaults,
         policyApplier: PreviewActivationPolicyApplier(),
-        loginController: PreviewLaunchAtLoginController(isEnabled: launchAtLogin)
+        loginController: PreviewLaunchAtLoginController(isEnabled: launchAtLogin),
+        notifier: NoOpBatteryNotifier()
     )
 }
 
