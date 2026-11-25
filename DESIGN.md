@@ -1,5 +1,7 @@
 # Design system — QCYBattery
 
+Status: rascunho, aguardando aprovação do Lucas
+
 Herda os tokens do [LogiBattery](https://github.com/LucasStop/LogiBattery/blob/main/DESIGN.md): cores de nível (`BatteryLevel.color` em [QCYBattery/BatteryLevel.swift](QCYBattery/BatteryLevel.swift), mesmos hex de lá), tipografia do sistema, `accentColor` do macOS, claro e escuro. Mudou lá e deve valer aqui: copiar no mesmo PR que mexer no app.
 
 ## Cores de nível
