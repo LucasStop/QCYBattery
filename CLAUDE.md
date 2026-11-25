@@ -15,7 +15,7 @@ Perfil: monolito · Stack: Swift (SwiftUI, XcodeGen)
 
 ## Regras de fluxo
 - Mudança de comportamento atualiza PRD/ARCHITECTURE/TESTING no mesmo PR; bug corrigido ganha teste de regressão.
-- Tela só é implementada com protótipo `aprovada` em `design/telas.md`. Componente ou token novo entra no `DESIGN.md` junto.
+- Tela só é implementada com protótipo `aprovada` em `design/telas.md`. Pedido de aprovação sempre traz os prints (claro e escuro) salvos em `design/prints/`; o Lucas aprova olhando os prints. Componente ou token novo entra no `DESIGN.md` junto.
 - Versão por PR (mesma regra do ADR 0007 do LogiBattery): `feat` sobe MINOR e `fix` sobe PATCH no próprio PR (`scripts/release.sh prepare`, último passo antes do merge, depois de rebasear na main), com a entrada do `CHANGELOG.md` reescrita com o porquê; os demais tipos não mexem na versão. Depois do merge com bump, avisar que falta `scripts/release.sh publish` e vigiar o `release-check` da tag.
 - Mudança no protocolo vai para o QCYKit (PR lá, tag nova) e o bump de `from:` no `project.yml` vem aqui depois.
 
