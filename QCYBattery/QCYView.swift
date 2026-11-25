@@ -97,34 +97,9 @@ struct QCYView: View {
 
                 VStack(alignment: .leading, spacing: 10) {
                     QCYLabel(title: "qcy.anc.title", hint: model.pending.isANC ? "qcy.pending.short" : "qcy.anc.hint")
-
-                    HStack(spacing: 0) {
-                        ForEach([
-                            (QCYANCChoice.anc, LocalizedStringKey("qcy.anc.anc")),
-                            (QCYANCChoice.normal, LocalizedStringKey("qcy.anc.normal")),
-                            (QCYANCChoice.transparency, LocalizedStringKey("qcy.anc.transparency"))
-                        ], id: \.0) { choice, label in
-                            let isSelected = model.ancSelection == choice
-
-                            Button {
-                                model.select(choice)
-                            } label: {
-                                Text(label)
-                                    .font(.system(size: 13, weight: isSelected ? .semibold : .regular))
-                                    .foregroundStyle(isSelected ? Color.white : Color.primary)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 6)
-                                    .background(isSelected ? Color.accentColor : Color.clear,
-                                                in: RoundedRectangle(cornerRadius: 6, style: .continuous))
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityAddTraits(isSelected ? .isSelected : [])
-                        }
+                    QCYANCSelector(selection: model.ancSelection) { choice in
+                        model.select(choice)
                     }
-                    .accessibilityElement(children: .contain)
-                    .accessibilityLabel("qcy.anc.title")
-                    .padding(2)
-                    .background(.quaternary, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(12)
@@ -194,8 +169,44 @@ private extension Optional where Wrapped == QCYPending {
 
 // MARK: - Componentes
 
+/// Seletor de 3 botões do ANC (DESIGN.md): reutilizado na janela (T12) e no popover da barra de menu (T13).
+struct QCYANCSelector: View {
+    let selection: QCYANCChoice?
+    let onSelect: (QCYANCChoice) -> Void
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach([
+                (QCYANCChoice.anc, LocalizedStringKey("qcy.anc.anc")),
+                (QCYANCChoice.normal, LocalizedStringKey("qcy.anc.normal")),
+                (QCYANCChoice.transparency, LocalizedStringKey("qcy.anc.transparency"))
+            ], id: \.0) { choice, label in
+                let isSelected = selection == choice
+
+                Button {
+                    onSelect(choice)
+                } label: {
+                    Text(label)
+                        .font(.system(size: 13, weight: isSelected ? .semibold : .regular))
+                        .foregroundStyle(isSelected ? Color.white : Color.primary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                        .background(isSelected ? Color.accentColor : Color.clear,
+                                    in: RoundedRectangle(cornerRadius: 6, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("qcy.anc.title")
+        .padding(2)
+        .background(.quaternary, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
+}
+
 /// Seção com `glassEffect` no macOS 26+ e `.regularMaterial` antes (DESIGN.md §3.7 e §4).
-private struct QCYGroup<Content: View>: View {
+struct QCYGroup<Content: View>: View {
     @ViewBuilder let content: Content
 
     var body: some View {
@@ -222,15 +233,16 @@ private struct QCYLabel: View {
     }
 }
 
-/// Anel de 54 pt por lado. Sem leitura mostra "—" (nunca 0%); carregando mostra um esqueleto.
-private struct QCYRing: View {
+/// Anel de 54 pt por lado. Sem leitura mostra "—" (nunca 0%); carregando mostra o raio em azul.
+struct QCYRing: View {
     let side: LocalizedStringKey
     let level: QCYBatteryLevel?
     let phase: QCYViewModel.Phase
 
     private var percent: Int? { phase == .connected ? level?.percent : nil }
+    private var isCharging: Bool { phase == .connected && level?.isCharging == true }
     private var tint: Color {
-        level?.isCharging == true ? Color(light: 0x2B6CB0, dark: 0x63B3ED)
+        isCharging ? Color(light: 0x2B6CB0, dark: 0x63B3ED)
         : BatteryLevel(percent: percent).color
     }
 
@@ -241,9 +253,16 @@ private struct QCYRing: View {
                 Circle().trim(from: 0, to: CGFloat(percent ?? 0) / 100)
                     .stroke(tint, style: StrokeStyle(lineWidth: 6, lineCap: .round))
                     .rotationEffect(.degrees(-90))
-                Text(percent.map { "\($0)%" } ?? "—")
-                    .font(.system(size: 12, weight: .semibold)).monospacedDigit()
-                    .foregroundStyle(percent == nil ? .secondary : .primary)
+                HStack(spacing: 1) {
+                    if isCharging {
+                        Image(systemName: "bolt.fill")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundStyle(tint)
+                    }
+                    Text(percent.map { "\($0)%" } ?? "—")
+                        .font(.system(size: 12, weight: .semibold)).monospacedDigit()
+                        .foregroundStyle(percent == nil ? .secondary : .primary)
+                }
             }
             .frame(width: 54, height: 54)
             VStack(spacing: 1) {
@@ -264,18 +283,20 @@ private struct QCYRing: View {
         case .connected:
             if percent == nil {
                 "qcy.ring.none"
-            } else if level?.isCharging == true {
+            } else if isCharging {
                 "charge.charging"
-            } else if BatteryLevel(percent: percent) == .normal {
-                "qcy.ring.battery"
-            } else {
+            } else if BatteryLevel(percent: percent) == .critical {
+                "qcy.ring.critical"
+            } else if BatteryLevel(percent: percent) == .low {
                 "qcy.ring.low"
+            } else {
+                "qcy.ring.battery"
             }
         }
     }
 }
 
-private struct QCYBanner: View {
+struct QCYBanner: View {
     let tint: Color
     let title: LocalizedStringKey
     let detail: LocalizedStringKey

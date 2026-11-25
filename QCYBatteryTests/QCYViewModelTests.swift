@@ -173,4 +173,28 @@ final class QCYViewModelTests: XCTestCase {
         await flush()
         XCTAssertEqual(model.address, advertisement.controlMAC)
     }
+
+    func testMenuBarTextAndChargingReflectConnectionAndSides() async {
+        let (model, link) = makeModel()
+        XCTAssertEqual(model.menuBarText, "L — · R —")
+        XCTAssertFalse(model.isCharging)
+
+        link.onState?(state())
+        await flush()
+        XCTAssertEqual(model.menuBarText, "L 90% · R 91%")
+        XCTAssertFalse(model.isCharging)
+
+        var charging = QCYState()
+        charging.left = QCYBatteryLevel(raw: 0x80 | 84)
+        charging.right = nil
+        link.onState?(charging)
+        await flush()
+        XCTAssertEqual(model.menuBarText, "L 84% · R —")
+        XCTAssertTrue(model.isCharging)
+
+        link.onDisconnect?()
+        await flush()
+        XCTAssertEqual(model.menuBarText, "L — · R —")
+        XCTAssertFalse(model.isCharging)
+    }
 }

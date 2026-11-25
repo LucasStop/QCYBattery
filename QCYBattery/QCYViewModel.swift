@@ -99,6 +99,16 @@ final class QCYViewModel {
     }
     var areControlsDisabled: Bool { isReadOnly || phase != .connected || pending != nil }
 
+    var isCharging: Bool {
+        phase == .connected && (state.left?.isCharging == true || state.right?.isCharging == true)
+    }
+
+    var menuBarText: String {
+        let left = phase == .connected ? state.left.map { "\($0.percent)%" } ?? "—" : "—"
+        let right = phase == .connected ? state.right.map { "\($0.percent)%" } ?? "—" : "—"
+        return "L \(left) · R \(right)"
+    }
+
     // MARK: - Ciclo de vida
 
     func start() {
