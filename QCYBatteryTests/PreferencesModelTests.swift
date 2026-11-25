@@ -32,6 +32,20 @@ private final class FakeLaunchAtLoginController: LaunchAtLoginControlling {
 }
 
 @MainActor
+private final class FakePreferencesBatteryNotifier: BatteryNotifying {
+    private(set) var authorizationRequests = 0
+    private(set) var alerts: [BatteryAlert] = []
+
+    func requestAuthorization() {
+        authorizationRequests += 1
+    }
+
+    func notify(_ alert: BatteryAlert) {
+        alerts.append(alert)
+    }
+}
+
+@MainActor
 final class PreferencesModelTests: XCTestCase {
     private var suiteName: String!
     private var defaults: UserDefaults!
@@ -53,13 +67,20 @@ final class PreferencesModelTests: XCTestCase {
         let model: PreferencesModel
         let applier: FakeActivationPolicyApplier
         let login: FakeLaunchAtLoginController
+        let notifier: FakePreferencesBatteryNotifier
     }
 
     private func makeFixture(loginEnabled: Bool = false) -> Fixture {
         let applier = FakeActivationPolicyApplier()
         let login = FakeLaunchAtLoginController(isEnabled: loginEnabled)
-        let model = PreferencesModel(defaults: defaults, policyApplier: applier, loginController: login)
-        return Fixture(model: model, applier: applier, login: login)
+        let notifier = FakePreferencesBatteryNotifier()
+        let model = PreferencesModel(
+            defaults: defaults,
+            policyApplier: applier,
+            loginController: login,
+            notifier: notifier
+        )
+        return Fixture(model: model, applier: applier, login: login, notifier: notifier)
     }
 
     func testDefaultsBothVisibilitiesOnAndRegularPolicy() {
@@ -144,5 +165,40 @@ final class PreferencesModelTests: XCTestCase {
         fixture.login.isEnabled = false
         fixture.model.refreshLaunchAtLogin()
         XCTAssertFalse(fixture.model.launchAtLogin)
+    }
+
+    func testBatteryAlertsDefaultOnWithoutRequestingAuthorizationOnLaunch() {
+        let fixture = makeFixture()
+        XCTAssertTrue(fixture.model.lowBatteryAlertEnabled)
+        XCTAssertTrue(fixture.model.criticalBatteryAlertEnabled)
+        XCTAssertEqual(fixture.model.batteryAlertSettings, .allEnabled)
+        XCTAssertEqual(fixture.notifier.authorizationRequests, 0)
+    }
+
+    func testBatteryAlertsPersistAcrossInstances() {
+        let first = makeFixture()
+        first.model.setLowBatteryAlert(false)
+        first.model.setCriticalBatteryAlert(false)
+
+        let second = makeFixture()
+        XCTAssertFalse(second.model.lowBatteryAlertEnabled)
+        XCTAssertFalse(second.model.criticalBatteryAlertEnabled)
+        XCTAssertEqual(second.model.batteryAlertSettings, .allDisabled)
+        XCTAssertEqual(second.notifier.authorizationRequests, 0)
+    }
+
+    func testTurningOnBatteryAlertRequestsAuthorizationOnce() {
+        defaults.set(false, forKey: "preferences.lowBatteryAlert")
+        defaults.set(false, forKey: "preferences.criticalBatteryAlert")
+        let fixture = makeFixture()
+        XCTAssertEqual(fixture.notifier.authorizationRequests, 0)
+
+        fixture.model.setLowBatteryAlert(true)
+        XCTAssertEqual(fixture.notifier.authorizationRequests, 1)
+
+        fixture.model.setLowBatteryAlert(false)
+        fixture.model.setLowBatteryAlert(true)
+        fixture.model.setCriticalBatteryAlert(true)
+        XCTAssertEqual(fixture.notifier.authorizationRequests, 1)
     }
 }

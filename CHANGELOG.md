@@ -2,6 +2,12 @@
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), em português, uma seção por versão publicada. Cada PR `feat` ou `fix` traz a própria seção, com o que mudou e por quê; os demais tipos não entram. Seções: Adicionado, Alterado, Corrigido, Removido.
 
+## 0.6.0 - 2026-11-25
+
+### Adicionado
+
+- Notificação de bateria baixa por lado, em 20% (aviso) e 10% (crítico), com os dois limites ligáveis na aba Ajustes: dá para saber que um dos fones está acabando sem olhar a janela. Cada lado avisa uma vez por limite e só avisa de novo depois de carregar ou subir acima do limite com folga de 5 pontos, para não repetir quando a leitura oscila. A permissão de notificação só é pedida ao ligar um dos avisos.
+
 ## 0.5.0 - 2026-11-25
 
 ### Adicionado
