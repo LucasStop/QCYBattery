@@ -2,6 +2,12 @@
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), em português, uma seção por versão publicada. Cada PR `feat` ou `fix` traz a própria seção, com o que mudou e por quê; os demais tipos não entram. Seções: Adicionado, Alterado, Corrigido, Removido.
 
+## 0.5.0 - 2026-11-25
+
+### Adicionado
+
+- Aba Ajustes na janela principal com o desligamento automático do fone (desativado, 15, 30, 60 ou 90 min), o volume dos avisos em quatro níveis e a detecção de uso, além das preferências do app (barra de menu, Dock e abrir ao iniciar sessão): antes só dava para mexer no fone pelo app oficial da QCY. A detecção de uso mantém o controle de música e o ANC ao colocar o fone como já estavam, e o volume só grava ao soltar o controle. Atalho global, regras de ANC por contexto e alertas de bateria vêm depois.
+
 ## 0.4.0 - 2026-11-25
 
 ### Adicionado

@@ -1,21 +1,21 @@
 import QCYKit
 import SwiftUI
 
-/// Abas da janela principal (T12, T14 e T15).
+/// Abas da janela principal (T12, T14, T15 e T16).
 enum QCYTab: CaseIterable, Equatable, Hashable {
-    case status
-    case sound
-    case touch
+    case status, sound, touch, adjustments
 }
 
-/// Janela do fone (T12/T14/T15): barra de abas segmentada (Status / Som / Toques), bateria, controles e detalhes.
-/// Sem bateria de estojo (firmware 2.0.6 não expõe).
+/// Janela do fone (T12/T14/T15/T16): barra de abas segmentada (Status / Som / Toques / Ajustes), bateria, controles
+/// e detalhes. Sem bateria de estojo (firmware 2.0.6 não expõe).
 struct QCYView: View {
     @Bindable var model: QCYViewModel
+    @Bindable var preferences: PreferencesModel
     @State private var selectedTab: QCYTab
 
-    init(model: QCYViewModel, selectedTab: QCYTab = .status) {
+    init(model: QCYViewModel, preferences: PreferencesModel, selectedTab: QCYTab = .status) {
         self.model = model
+        self.preferences = preferences
         _selectedTab = State(initialValue: selectedTab)
     }
 
@@ -33,6 +33,8 @@ struct QCYView: View {
                 QCYSoundView(model: model)
             case .touch:
                 QCYTouchView(model: model)
+            case .adjustments:
+                QCYAdjustmentsView(model: model, preferences: preferences)
             }
         }
         .padding(16)
@@ -96,7 +98,6 @@ struct QCYView: View {
     private var controlsGroup: some View {
         QCYGroup {
             VStack(spacing: 0) {
-
                 VStack(alignment: .leading, spacing: 10) {
                     QCYLabel(title: "qcy.anc.title", hint: model.pending.isANC ? "qcy.pending.short" : "qcy.anc.hint")
                     QCYANCSelector(selection: model.ancSelection) { choice in
@@ -105,9 +106,7 @@ struct QCYView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(12)
-
                 Divider()
-
                 HStack {
                     QCYLabel(title: "qcy.ldac.title", hint: "qcy.ldac.hint")
                     Spacer()
@@ -116,9 +115,7 @@ struct QCYView: View {
                         .toggleStyle(.switch)
                 }
                 .padding(12)
-
                 Divider()
-
                 HStack {
                     QCYLabel(title: "qcy.game.title", hint: "qcy.game.hint")
                     Spacer()
@@ -127,7 +124,6 @@ struct QCYView: View {
                         .toggleStyle(.switch)
                 }
                 .padding(12)
-
             }
             .disabled(model.areControlsDisabled)
             .opacity(model.areControlsDisabled && model.pending == nil ? 0.55 : 1)
@@ -180,7 +176,8 @@ struct QCYTabBar: View {
             ForEach([
                 (QCYTab.status, LocalizedStringKey("qcy.tab.status")),
                 (QCYTab.sound, LocalizedStringKey("qcy.tab.sound")),
-                (QCYTab.touch, LocalizedStringKey("qcy.tab.touch"))
+                (QCYTab.touch, LocalizedStringKey("qcy.tab.touch")),
+                (QCYTab.adjustments, LocalizedStringKey("qcy.tab.adjustments"))
             ], id: \.0) { tab, label in
                 let isSelected = selection == tab
 
@@ -345,16 +342,12 @@ struct QCYRing: View {
         case .loading: "qcy.status.reading"
         case .disconnected: "qcy.status.disconnected"
         case .connected:
-            if percent == nil {
-                "qcy.ring.none"
-            } else if isCharging {
-                "charge.charging"
-            } else if BatteryLevel(percent: percent) == .critical {
-                "qcy.ring.critical"
-            } else if BatteryLevel(percent: percent) == .low {
-                "qcy.ring.low"
-            } else {
-                "qcy.ring.battery"
+            switch (percent, isCharging, BatteryLevel(percent: percent)) {
+            case (nil, _, _): "qcy.ring.none"
+            case (_, true, _): "charge.charging"
+            case (_, _, .critical): "qcy.ring.critical"
+            case (_, _, .low): "qcy.ring.low"
+            default: "qcy.ring.battery"
             }
         }
     }
@@ -388,10 +381,11 @@ struct QCYBanner: View {
 }
 
 #if DEBUG
-#Preview("Conectado") { QCYView(model: previewModel(.connected)) }
-#Preview("Aba Som") { QCYView(model: previewModel(.connected), selectedTab: .sound) }
-#Preview("Aba Toques") { QCYView(model: previewModel(.connected), selectedTab: .touch) }
-#Preview("Somente leitura") { QCYView(model: previewModel(.connected, readOnly: true)) }
-#Preview("Lendo") { QCYView(model: previewModel(.loading)) }
-#Preview("Sem conexão") { QCYView(model: previewModel(.disconnected)) }
+#Preview("Conectado") { previewWindow() }
+#Preview("Aba Som") { previewWindow(tab: .sound) }
+#Preview("Aba Toques") { previewWindow(tab: .touch) }
+#Preview("Aba Ajustes") { previewWindow(tab: .adjustments) }
+#Preview("Somente leitura") { previewWindow(readOnly: true) }
+#Preview("Lendo") { previewWindow(.loading) }
+#Preview("Sem conexão") { previewWindow(.disconnected) }
 #endif

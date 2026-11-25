@@ -17,7 +17,7 @@ struct QCYBatteryApp: App {
 
     var body: some Scene {
         Window("qcy.window", id: "main") {
-            QCYView(model: sharedModel)
+            QCYView(model: sharedModel, preferences: sharedPreferences)
         }
         .windowResizability(.contentSize)
 

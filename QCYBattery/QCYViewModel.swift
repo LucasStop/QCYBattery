@@ -50,6 +50,9 @@ enum QCYPending: Equatable, Sendable {
     case vocalBoost(Bool)
     case balance(UInt8)
     case key(QCYGesture, QCYKeyFunction)
+    case powerOff(QCYPowerOff)
+    case toneVolume(QCYToneVolume)
+    case wearDetection(Bool)
 }
 
 /// Estado da janela do fone (T12). O controle só muda depois do eco do fone; sem eco no prazo, ou com o link
@@ -123,6 +126,19 @@ final class QCYViewModel {
             map[gesture] = function
         }
         return map
+    }
+    var powerOff: QCYPowerOff? {
+        if case .powerOff(let target)? = pending { return target }
+        return state.powerOff
+    }
+    var toneVolume: QCYToneVolume? {
+        if case .toneVolume(let target)? = pending { return target }
+        return state.toneVolume
+    }
+    var isWearDetectionAvailable: Bool { state.wearDetection != nil }
+    var isWearDetectionOn: Bool {
+        if case .wearDetection(let enabled)? = pending { return enabled }
+        return state.wearDetection?.isEnabled ?? false
     }
     var areControlsDisabled: Bool { isReadOnly || phase != .connected || pending != nil }
 
@@ -220,6 +236,26 @@ final class QCYViewModel {
         begin(.key(gesture, function)) { link.setKeyFunction(function, for: gesture) }
     }
 
+    func choose(powerOff target: QCYPowerOff) {
+        guard !areControlsDisabled, target != powerOff else { return }
+        begin(.powerOff(target), .setPowerOff(target))
+    }
+
+    func choose(toneVolume target: QCYToneVolume) {
+        guard !areControlsDisabled, target != toneVolume else { return }
+        begin(.toneVolume(target), .setToneVolume(target))
+    }
+
+    func setWearDetection(_ enabled: Bool) {
+        guard !areControlsDisabled, let current = state.wearDetection, enabled != isWearDetectionOn else { return }
+        let updated = QCYWearDetection(
+            isEnabled: enabled,
+            musicControl: current.musicControl,
+            isANCSwitchEnabled: current.isANCSwitchEnabled
+        )
+        begin(.wearDetection(enabled), .setWearDetection(updated))
+    }
+
     private func begin(_ write: QCYPending, _ packet: QCYPacket) {
         begin(write) { link.send(packet) }
     }
@@ -248,19 +284,32 @@ final class QCYViewModel {
         phase = .connected
         settleTask?.cancel()
         guard let write = pending else { return }
-        let confirmed = switch write {
+        if isConfirmed(write) {
+            pending = nil
+            writeTask?.cancel()
+        }
+    }
+
+    private func isConfirmed(_ write: QCYPending) -> Bool {
+        switch write {
         case .anc(let target): ancChoice == target
         case .ldac(let value): state.isLDACEnabled == value
         case .game(let value): state.isLowLatencyEnabled == value
         case .soundEffect(let target): state.soundEffect == target
         case .vocalBoost(let enabled):
             state.ancScene?.mode == 0x03 && state.ancScene?.subScene == (enabled ? 0x02 : 0x01)
+        default: isSettingConfirmed(write)
+        }
+    }
+
+    private func isSettingConfirmed(_ write: QCYPending) -> Bool {
+        switch write {
         case .balance(let target): state.balance == target
         case .key(let gesture, let function): state.keyMap[gesture] == function
-        }
-        if confirmed {
-            pending = nil
-            writeTask?.cancel()
+        case .powerOff(let target): state.powerOff == target
+        case .toneVolume(let target): state.toneVolume == target
+        case .wearDetection(let enabled): state.wearDetection?.isEnabled == enabled
+        default: false
         }
     }
 

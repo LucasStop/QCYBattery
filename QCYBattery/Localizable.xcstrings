@@ -49,6 +49,278 @@
         }
       }
     },
+    "qcy.adjustments.powerOff.15": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 min"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 min"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.powerOff.30": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 min"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 min"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.powerOff.60": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "60 min"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "60 min"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.powerOff.90": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "90 min"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "90 min"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.powerOff.disabled": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desativado"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.powerOff.hint": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliga o fone após inatividade"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turns off the earbuds after inactivity"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.powerOff.title": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desligamento automático"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto power-off"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.section.app": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.section.earbuds": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fone"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Earbuds"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.toneVolume.higher": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alto"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Higher"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.toneVolume.hint": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bipes de troca de modo e conexão"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode switch and connection beeps"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.toneVolume.lower": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mais baixo"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.toneVolume.maximum": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Máximo"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.toneVolume.medium": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Médio"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medium"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.toneVolume.title": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volume dos avisos"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tone volume"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.wearDetection.hint": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausa a mídia ao retirar o fone da orelha"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pauses media when you remove an earbud"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.wearDetection.title": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detecção de uso"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wear detection"
+          }
+        }
+      }
+    },
     "qcy.anc.anc": {
       "localizations": {
         "pt-BR": {
@@ -1009,6 +1281,22 @@
         }
       }
     },
+    "qcy.tab.adjustments": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustes"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        }
+      }
+    },
     "qcy.tab.sound": {
       "localizations": {
         "pt-BR": {
@@ -1313,6 +1601,22 @@
         }
       }
     },
+    "settings.launchAtLogin.hint": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inicia o QCYBattery automaticamente com o macOS"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starts QCYBattery automatically with macOS"
+          }
+        }
+      }
+    },
     "settings.section.presence": {
       "localizations": {
         "pt-BR": {
@@ -1361,6 +1665,38 @@
         }
       }
     },
+    "settings.showInDock.hint": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantém o ícone do app no Dock e no Cmd+Tab"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keeps the app icon in the Dock and Cmd+Tab"
+          }
+        }
+      }
+    },
+    "settings.showInDock.locked": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obrigatório enquanto a barra de menu estiver desligada"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required while the menu bar item is off"
+          }
+        }
+      }
+    },
     "settings.showInMenuBar": {
       "localizations": {
         "pt-BR": {
@@ -1373,6 +1709,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Show in menu bar"
+          }
+        }
+      }
+    },
+    "settings.showInMenuBar.hint": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exibe ícone e bateria L/R no topo da tela"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows the icon and L/R battery in the menu bar"
+          }
+        }
+      }
+    },
+    "settings.showInMenuBar.locked": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obrigatório enquanto o Dock estiver desligado"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required while the Dock icon is off"
           }
         }
       }
