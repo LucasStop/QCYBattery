@@ -43,19 +43,19 @@ struct QCYBatteryApp: App {
         } label: {
             // Largura fixa: se o item muda de tamanho ao aparecer a porcentagem, o macOS ancora o popover
             // na posição antiga e ele abre deslocado para a direita.
-            HStack(spacing: 4) {
-                if sharedModel.phase == .connected {
-                    Image("lb.headphones.bluetooth")
-                } else {
-                    Image(systemName: "headphones")
-                }
+            // Um único Text com o símbolo embutido: o MenuBarExtra alinha pela linha de base, como os outros itens.
+            // Símbolo do sistema: o customizado do asset catalog não renderiza no label do MenuBarExtra.
+            // O MenuBarExtra descarta símbolo embutido em Text: ícone e texto lado a lado, na mesma linha de base.
+            // Símbolo do sistema: o customizado do asset catalog não renderiza no label do MenuBarExtra.
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Image(systemName: "headphones")
                 if sharedModel.isCharging {
                     Image(systemName: "bolt.fill")
                 }
                 Text(sharedModel.menuBarText)
                     .monospacedDigit()
             }
-            .frame(width: 132, alignment: .leading)
+                .frame(width: 132, alignment: .leading)
         }
         .menuBarExtraStyle(.window)
 
