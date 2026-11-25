@@ -17,5 +17,5 @@ Status: aprovado em 2026-11-25
 - Repo próprio desde 2026-11-25 (ADR 0008 do LogiBattery): versão, CHANGELOG e release independentes; o protocolo é pacote compartilhado com o LogiBattery, que só lê.
 - `QCYClient` é o `QCYLink` de verdade (`extension QCYClient: QCYLink`); testes e preview usam link falso.
 - Dependência do QCYKit por tag semver (`from:` no `project.yml`).
-- Saída do App Sandbox (proposta em [docs/adr/0001-sair-do-app-sandbox.md](adr/0001-sair-do-app-sandbox.md)): macros no Mac exigem executar scripts, enviar eventos `CGEvent` e rodar `shortcuts run`, o que requer sair do App Sandbox; o sandbox permanece ativo até o PR que implementa as macros.
+- Saída do App Sandbox (aceita em [docs/adr/0001-sair-do-app-sandbox.md](adr/0001-sair-do-app-sandbox.md)): macros no Mac exigem executar scripts, enviar eventos `CGEvent` e rodar `shortcuts run`, o que requer sair do App Sandbox; o sandbox permanece ativo até o PR que implementa as macros.
 - Gestos suportados pelo firmware (medido no QCYKit 0.6.0): característica `000D` expõe 6 gestos (1, 2 e 3 toques por lado) com 9 funções (`QCYKeyFunction`); 4 toques e toque longo não são expostos pelo firmware.
