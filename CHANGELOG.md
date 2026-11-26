@@ -2,6 +2,12 @@
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), em português, uma seção por versão publicada. Cada PR `feat` ou `fix` traz a própria seção, com o que mudou e por quê; os demais tipos não entram. Seções: Adicionado, Alterado, Corrigido, Removido.
 
+## 0.10.3 - 2026-11-26
+
+### Corrigido
+
+- O app volta a achar o fone sozinho: desconectado, reinicia a busca a cada 10 s, sem mexer na tela. Antes era preciso abrir o popover e clicar em "Procurar de novo", porque o scan do Bluetooth não reporta de novo um fone já visto e o link que o macOS mantém aberto não anuncia.
+
 ## 0.10.2 - 2026-11-25
 
 ### Corrigido
