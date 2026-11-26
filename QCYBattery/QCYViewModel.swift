@@ -357,12 +357,6 @@ extension QCYViewModel {
         if case .soundEffect(let target)? = pending { return target }
         return state.soundEffect
     }
-    var isLDACAvailable: Bool { state.isLDACEnabled != nil }
-    var isGameAvailable: Bool { state.isLowLatencyEnabled != nil }
-    var isSoundEffectAvailable: Bool { state.soundEffect != nil }
-    var isBalanceAvailable: Bool { state.balance != nil }
-    var isPowerOffAvailable: Bool { state.powerOff != nil }
-    var isToneVolumeAvailable: Bool { state.toneVolume != nil }
     var isVocalBoostAvailable: Bool { state.ancScene?.mode == 0x03 }
     var isVocalBoostOn: Bool {
         if case .vocalBoost(let enabled)? = pending { return enabled }
@@ -397,10 +391,6 @@ extension QCYViewModel {
     var isCharging: Bool {
         phase == .connected && (state.left?.isCharging == true || state.right?.isCharging == true)
     }
-
-    /// Fone fora do ouvido ou no estojo reporta 0%: sem leitura, não bateria vazia.
-    var leftLevel: QCYBatteryLevel? { state.left.flatMap { $0.percent > 0 ? $0 : nil } }
-    var rightLevel: QCYBatteryLevel? { state.right.flatMap { $0.percent > 0 ? $0 : nil } }
 
     var menuBarText: String {
         let left = phase == .connected ? leftLevel.map { "\($0.percent)%" } ?? "—" : "—"
