@@ -12,4 +12,13 @@ extension QCYViewModel {
     /// Fone fora do ouvido ou no estojo reporta 0%: sem leitura, não bateria vazia.
     var leftLevel: QCYBatteryLevel? { state.left.flatMap { $0.percent > 0 ? $0 : nil } }
     var rightLevel: QCYBatteryLevel? { state.right.flatMap { $0.percent > 0 ? $0 : nil } }
+
+    /// Texto da barra de menu: só os lados com leitura (`L 95%`, `R 80%` ou os dois); vazio sem conexão.
+    var menuBarLabel: String {
+        guard phase == .connected else { return "" }
+        let sides = [("L", leftLevel), ("R", rightLevel)].compactMap { side, level in
+            level.map { "\(side) \($0.percent)%" }
+        }
+        return sides.joined(separator: " · ")
+    }
 }

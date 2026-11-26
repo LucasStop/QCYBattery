@@ -2,6 +2,12 @@
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), em português, uma seção por versão publicada. Cada PR `feat` ou `fix` traz a própria seção, com o que mudou e por quê; os demais tipos não entram. Seções: Adicionado, Alterado, Corrigido, Removido.
 
+## 0.10.2 - 2026-11-25
+
+### Corrigido
+
+- A barra de menu lista só os fones com leitura ("L 95%", "R 80%" ou os dois) e mostra só o ícone de fone quando não há conexão. Antes aparecia "R —" ou "L — · R —", ruído num item estreito. O resumo de bateria dos Atalhos mantém o texto completo.
+
 ## 0.10.1 - 2026-11-25
 
 ### Corrigido
