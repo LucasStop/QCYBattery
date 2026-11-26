@@ -104,7 +104,7 @@ final class QCYViewModelTests: XCTestCase {
 
         XCTAssertNil(model.rightLevel)
         XCTAssertEqual(model.leftLevel?.percent, 90)
-        XCTAssertEqual(model.menuBarText, "L 90% · R —")
+        XCTAssertEqual(model.menuBarLabel, "L 90%")
     }
 
     func testControlsWithoutReadingAreUnavailableAndDoNotWrite() async {
@@ -222,6 +222,25 @@ final class QCYViewModelTests: XCTestCase {
         link.onAdvertisement?(advertisement)
         await flush()
         XCTAssertEqual(model.address, advertisement.controlMAC)
+    }
+
+    func testMenuBarLabelShowsOnlySidesWithReading() async {
+        let (model, link) = makeModel()
+        XCTAssertEqual(model.menuBarLabel, "")
+
+        link.onState?(state())
+        await flush()
+        XCTAssertEqual(model.menuBarLabel, "L 90% · R 91%")
+
+        var onlyRight = state()
+        onlyRight.left = QCYBatteryLevel(raw: 0)
+        link.onState?(onlyRight)
+        await flush()
+        XCTAssertEqual(model.menuBarLabel, "R 91%")
+
+        link.onDisconnect?()
+        await flush()
+        XCTAssertEqual(model.menuBarLabel, "")
     }
 
     func testMenuBarTextAndChargingReflectConnectionAndSides() async {
