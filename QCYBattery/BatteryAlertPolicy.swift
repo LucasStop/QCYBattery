@@ -50,7 +50,11 @@ struct BatteryAlertPolicy: Sendable {
     private var rightState = SideState()
 
     mutating func evaluate(state: QCYState, settings: BatteryAlertSettings) -> [BatteryAlert] {
-        evaluate(left: state.left, right: state.right, settings: settings)
+        evaluate(
+            left: state.left.flatMap { $0.percent > 0 ? $0 : nil },
+            right: state.right.flatMap { $0.percent > 0 ? $0 : nil },
+            settings: settings
+        )
     }
 
     mutating func evaluate(

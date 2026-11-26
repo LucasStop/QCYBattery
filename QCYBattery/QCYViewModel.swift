@@ -379,9 +379,13 @@ extension QCYViewModel {
         phase == .connected && (state.left?.isCharging == true || state.right?.isCharging == true)
     }
 
+    /// Fone fora do ouvido ou no estojo reporta 0%: sem leitura, não bateria vazia.
+    var leftLevel: QCYBatteryLevel? { state.left.flatMap { $0.percent > 0 ? $0 : nil } }
+    var rightLevel: QCYBatteryLevel? { state.right.flatMap { $0.percent > 0 ? $0 : nil } }
+
     var menuBarText: String {
-        let left = phase == .connected ? state.left.map { "\($0.percent)%" } ?? "—" : "—"
-        let right = phase == .connected ? state.right.map { "\($0.percent)%" } ?? "—" : "—"
+        let left = phase == .connected ? leftLevel.map { "\($0.percent)%" } ?? "—" : "—"
+        let right = phase == .connected ? rightLevel.map { "\($0.percent)%" } ?? "—" : "—"
         return "L \(left) · R \(right)"
     }
 }

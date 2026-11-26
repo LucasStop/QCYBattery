@@ -88,8 +88,8 @@ struct QCYMenuBarPopover: View {
         QCYGroup {
             VStack(spacing: 8) {
                 HStack {
-                    QCYRing(side: "qcy.side.left", level: model.state.left, phase: model.phase)
-                    QCYRing(side: "qcy.side.right", level: model.state.right, phase: model.phase)
+                    QCYRing(side: "qcy.side.left", level: model.leftLevel, phase: model.phase)
+                    QCYRing(side: "qcy.side.right", level: model.rightLevel, phase: model.phase)
                 }
                 Text(batteryFootnote)
                     .font(.caption)
