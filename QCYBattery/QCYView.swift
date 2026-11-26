@@ -49,8 +49,7 @@ struct QCYView: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            Image(model.phase == .connected ? "lb.headphones.bluetooth" : "headphones")
-                .resizable().scaledToFit().padding(9)
+            HeadphonesIcon(isConnected: model.phase == .connected, size: 22)
                 .frame(width: 44, height: 44)
                 .background(.quaternary, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .accessibilityHidden(true)

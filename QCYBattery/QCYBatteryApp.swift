@@ -59,10 +59,10 @@ struct QCYBatteryApp: App {
         } label: {
             // Largura fixa por quantidade de lados: se o item muda de tamanho ao aparecer a porcentagem, o macOS ancora
             // o popover na posição antiga e ele abre deslocado. O MenuBarExtra descarta símbolo embutido em Text e
-            // não desenha o símbolo do asset catalog: ícone do sistema ao lado do texto, na mesma linha de base.
+            // descarta o símbolo `lb.*`: NSImage template ao lado do texto, na mesma linha de base.
             let label = sharedModel.menuBarLabel
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Image(systemName: "headphones")
+                MenuBarHeadphonesIcon(isConnected: sharedModel.phase == .connected)
                 if sharedModel.isCharging {
                     Image(systemName: "bolt.fill")
                 }

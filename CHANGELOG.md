@@ -2,6 +2,12 @@
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), em português, uma seção por versão publicada. Cada PR `feat` ou `fix` traz a própria seção, com o que mudou e por quê; os demais tipos não entram. Seções: Adicionado, Alterado, Corrigido, Removido.
 
+## 0.10.4 - 2026-11-26
+
+### Corrigido
+
+- O ícone do fone com o selo de Bluetooth volta a aparecer na barra de menu, no popover e no cabeçalho da janela; desconectado, os três mostram o fone simples. O símbolo próprio do catálogo saía em branco: nas telas ele precisa de fonte explícita, e o rótulo da barra de menu descarta símbolos do catálogo, por isso o app o rasteriza em uma imagem template.
+
 ## 0.10.3 - 2026-11-26
 
 ### Corrigido

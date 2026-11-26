@@ -46,17 +46,11 @@ struct QCYMenuBarPopover: View {
     }
 
     private var headerIcon: some View {
-        Group {
-            if model.phase == .connected {
-                Image("lb.headphones.bluetooth").resizable().scaledToFit()
-            } else {
-                Image(systemName: "headphones").resizable().scaledToFit()
-            }
-        }
-        .padding(6)
-        .frame(width: 28, height: 28)
-        .background(.quaternary, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
-        .accessibilityHidden(true)
+        // `.font` explícito: sem ele o símbolo `lb.*` não desenha no MenuBarExtra (mesma regra do LogiBattery, #77).
+        HeadphonesIcon(isConnected: model.phase == .connected, size: 15)
+            .frame(width: 28, height: 28)
+            .background(.quaternary, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+            .accessibilityHidden(true)
     }
 
     private var subtitle: LocalizedStringKey {
