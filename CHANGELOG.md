@@ -2,6 +2,12 @@
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), em português, uma seção por versão publicada. Cada PR `feat` ou `fix` traz a própria seção, com o que mudou e por quê; os demais tipos não entram. Seções: Adicionado, Alterado, Corrigido, Removido.
 
+## 0.9.2 - 2026-11-25
+
+### Corrigido
+
+- Controles sem leitura do fone (efeito de som, balanço, volume do bipe, desligamento automático, LDAC e modo jogo) ficam inativos e esmaecidos, como já era o vocal boosted. Antes eles apareciam ativos com um valor padrão inventado, e um toque podia gravar no fone sobre um estado que o app nunca leu.
+
 ## 0.9.1 - 2026-11-25
 
 ### Corrigido
