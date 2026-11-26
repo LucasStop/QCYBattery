@@ -2,6 +2,14 @@
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), em português, uma seção por versão publicada. Cada PR `feat` ou `fix` traz a própria seção, com o que mudou e por quê; os demais tipos não entram. Seções: Adicionado, Alterado, Corrigido, Removido.
 
+## 0.10.0 - 2026-11-25
+
+### Adicionado
+
+- Atalho global que cicla o ANC (ANC, Transparência, Normal) de qualquer app, gravado na aba Ajustes; usa o registro de atalho do sistema, que não pede permissão extra. Trocar de cena sem pegar o fone na mão era o pedido mais direto do US-10.
+- Regra de ANC por contexto: com o microfone em uso (chamada), o app aplica a cena escolhida, por padrão Transparência, e ao terminar volta à cena de antes, a menos que você tenha trocado o ANC à mão nesse meio tempo, para não desfazer a sua escolha. O monitor de áudio só roda com a regra ligada.
+- Filtro de Foco do QCYBattery: em Ajustes do Sistema > Foco > Filtros de Foco o Foco escolhe a cena de ANC e, ao sair, a cena anterior volta. O macOS não deixa um app descobrir qual Foco está ativo de outra forma, por isso a configuração fica lá e não numa lista dentro do app.
+
 ## 0.9.3 - 2026-11-25
 
 ### Corrigido
