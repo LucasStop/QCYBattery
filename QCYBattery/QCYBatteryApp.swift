@@ -33,6 +33,19 @@ struct QCYBatteryApp: App {
             )
         }
         .windowResizability(.contentSize)
+        .commands {
+            // Cmd+Q com a barra de menu ligada só fecha as janelas; "Encerrar" do popover e o Dock encerram de verdade.
+            CommandGroup(replacing: .appTermination) {
+                Button("qcy.menu.quitApp") {
+                    if sharedPreferences.keepsRunningOnQuitShortcut {
+                        NSApplication.shared.windows.forEach { $0.close() }
+                    } else {
+                        NSApplication.shared.terminate(nil)
+                    }
+                }
+                .keyboardShortcut("q")
+            }
+        }
 
         MenuBarExtra(isInserted: menuBarInserted) {
             QCYMenuBarPopover(
@@ -70,6 +83,8 @@ struct QCYBatteryApp: App {
 
 @MainActor
 private final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         // O host dos testes é o app: sem isso ele escaneia Bluetooth e muda a política durante `xcodebuild test`.
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }

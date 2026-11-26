@@ -2545,6 +2545,22 @@
         }
       }
     },
+    "qcy.menu.quitApp": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encerrar QCYBattery"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit QCYBattery"
+          }
+        }
+      }
+    },
     "qcy.menubar.open": {
       "localizations": {
         "pt-BR": {
