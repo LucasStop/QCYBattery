@@ -1,9 +1,18 @@
 import SwiftUI
 
 /// Linhas de presença (barra de menu / Dock) e abrir ao iniciar sessão, compartilhadas entre a aba Ajustes (T16)
-/// e a janela de ajustes do app (`Cmd+,`).
-struct QCYAppPreferencesGroup: View {
+/// e a janela de ajustes do app (`Cmd+,`). Aceita linhas extras no mesmo grupo (ex.: atalho global na aba Ajustes).
+struct QCYAppPreferencesGroup<ExtraRows: View>: View {
     @Bindable var preferences: PreferencesModel
+    private let extraRows: ExtraRows
+
+    init(
+        preferences: PreferencesModel,
+        @ViewBuilder extraRows: () -> ExtraRows
+    ) {
+        self.preferences = preferences
+        self.extraRows = extraRows()
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -14,6 +23,7 @@ struct QCYAppPreferencesGroup: View {
                     dockRow
                     Divider()
                     launchAtLoginRow
+                    extraRows
                 }
             }
             Text("settings.visibility.hint")
@@ -76,6 +86,13 @@ struct QCYAppPreferencesGroup: View {
             .toggleStyle(.switch)
         }
         .padding(12)
+    }
+}
+
+extension QCYAppPreferencesGroup where ExtraRows == EmptyView {
+    init(preferences: PreferencesModel) {
+        self.preferences = preferences
+        self.extraRows = EmptyView()
     }
 }
 

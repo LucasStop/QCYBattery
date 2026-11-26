@@ -110,7 +110,10 @@ func previewPreferences(
     showInDock: Bool = true,
     launchAtLogin: Bool = true,
     lowBatteryAlertEnabled: Bool = true,
-    criticalBatteryAlertEnabled: Bool = true
+    criticalBatteryAlertEnabled: Bool = true,
+    globalANCHotKey: MacroKeyShortcut? = nil,
+    callRuleEnabled: Bool = true,
+    callRuleScene: QCYANCChoice = .transparency
 ) -> PreferencesModel {
     let suiteName = "com.lucasstop.QCYBattery.preview.\(UUID().uuidString)"
     let defaults = UserDefaults(suiteName: suiteName) ?? .standard
@@ -118,6 +121,11 @@ func previewPreferences(
     defaults.set(showInDock, forKey: "preferences.showInDock")
     defaults.set(lowBatteryAlertEnabled, forKey: "preferences.lowBatteryAlert")
     defaults.set(criticalBatteryAlertEnabled, forKey: "preferences.criticalBatteryAlert")
+    defaults.set(callRuleEnabled, forKey: "preferences.contextRule.call.enabled")
+    defaults.set(callRuleScene.rawValue, forKey: "preferences.contextRule.call.scene")
+    if let globalANCHotKey, let data = try? JSONEncoder().encode(globalANCHotKey) {
+        defaults.set(data, forKey: "preferences.globalANCHotKey")
+    }
     return PreferencesModel(
         defaults: defaults,
         policyApplier: PreviewActivationPolicyApplier(),
@@ -127,11 +135,34 @@ func previewPreferences(
 }
 
 @MainActor
+func previewContextCoordinator(
+    model: QCYViewModel,
+    preferences: PreferencesModel,
+    isRecordingHotKey: Bool = false
+) -> ContextRuleCoordinator {
+    let coordinator = ContextRuleCoordinator(
+        model: model,
+        preferences: preferences,
+        hotKeyRegistrar: NoOpGlobalHotKeyRegistrar(),
+        callMonitor: NoOpCallActivityMonitor()
+    )
+    coordinator.isRecordingHotKey = isRecordingHotKey
+    return coordinator
+}
+
+@MainActor
 func previewWindow(
     _ scenario: PreviewScenario = .connected,
     readOnly: Bool = false,
     tab: QCYTab = .status
 ) -> QCYView {
-    QCYView(model: previewModel(scenario, readOnly: readOnly), preferences: previewPreferences(), selectedTab: tab)
+    let model = previewModel(scenario, readOnly: readOnly)
+    let preferences = previewPreferences()
+    return QCYView(
+        model: model,
+        preferences: preferences,
+        contextCoordinator: previewContextCoordinator(model: model, preferences: preferences),
+        selectedTab: tab
+    )
 }
 #endif

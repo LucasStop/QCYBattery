@@ -2,10 +2,11 @@ import QCYKit
 import SwiftUI
 
 /// Aba Ajustes da janela principal (T16): ajustes do fone (desligamento automático, volume dos avisos e detecção de
-/// uso), preferências do app (barra de menu, Dock e abrir ao iniciar sessão) e alertas de bateria baixa por lado.
+/// uso), preferências do app e atalho global de ANC, regras de ANC por contexto e alertas de bateria baixa por lado.
 struct QCYAdjustmentsView: View {
     @Bindable var model: QCYViewModel
     @Bindable var preferences: PreferencesModel
+    @Bindable var contextCoordinator: ContextRuleCoordinator
 
     private static let powerOffPresets: [QCYPowerOff] = [
         .disabled, .fifteenMinutes, .thirtyMinutes, .sixtyMinutes, .ninetyMinutes
@@ -16,8 +17,13 @@ struct QCYAdjustmentsView: View {
             QCYStatusBanner(model: model)
             sectionHeader("qcy.adjustments.section.earbuds")
             earbudsGroup
-            sectionHeader("qcy.adjustments.section.app")
-            QCYAppPreferencesGroup(preferences: preferences)
+            sectionHeader("qcy.adjustments.section.appAndShortcut")
+            QCYAppPreferencesGroup(preferences: preferences) {
+                Divider()
+                QCYGlobalHotKeyRow(preferences: preferences, contextCoordinator: contextCoordinator)
+            }
+            sectionHeader("qcy.adjustments.section.contextRules")
+            QCYContextRulesGroup(preferences: preferences, contextCoordinator: contextCoordinator)
             sectionHeader("qcy.adjustments.section.batteryAlerts")
             batteryAlertsGroup
         }
@@ -264,26 +270,58 @@ extension QCYToneVolume {
 
 #if DEBUG
 #Preview("Aba Ajustes — conectado") {
-    QCYAdjustmentsView(model: previewModel(.connected), preferences: previewPreferences())
-        .padding(16)
-        .frame(width: 468)
+    let model = previewModel(.connected)
+    let prefs = previewPreferences(globalANCHotKey: MacroKeyShortcut(keyCode: 0, modifiers: [.command, .shift]))
+    QCYAdjustmentsView(
+        model: model,
+        preferences: prefs,
+        contextCoordinator: previewContextCoordinator(model: model, preferences: prefs)
+    )
+    .padding(16)
+    .frame(width: 468)
+}
+#Preview("Aba Ajustes — gravando atalho") {
+    let model = previewModel(.connected)
+    let prefs = previewPreferences()
+    QCYAdjustmentsView(
+        model: model,
+        preferences: prefs,
+        contextCoordinator: previewContextCoordinator(model: model, preferences: prefs, isRecordingHotKey: true)
+    )
+    .padding(16)
+    .frame(width: 468)
 }
 #Preview("Aba Ajustes — só barra de menu") {
+    let model = previewModel(.connected)
+    let prefs = previewPreferences(showInMenuBar: true, showInDock: false)
     QCYAdjustmentsView(
-        model: previewModel(.connected),
-        preferences: previewPreferences(showInMenuBar: true, showInDock: false)
+        model: model,
+        preferences: prefs,
+        contextCoordinator: previewContextCoordinator(model: model, preferences: prefs)
     )
     .padding(16)
     .frame(width: 468)
 }
 #Preview("Aba Ajustes — somente leitura") {
-    QCYAdjustmentsView(model: previewModel(.connected, readOnly: true), preferences: previewPreferences())
-        .padding(16)
-        .frame(width: 468)
+    let model = previewModel(.connected, readOnly: true)
+    let prefs = previewPreferences()
+    QCYAdjustmentsView(
+        model: model,
+        preferences: prefs,
+        contextCoordinator: previewContextCoordinator(model: model, preferences: prefs)
+    )
+    .padding(16)
+    .frame(width: 468)
 }
 #Preview("Aba Ajustes — sem conexão") {
-    QCYAdjustmentsView(model: previewModel(.disconnected), preferences: previewPreferences())
-        .padding(16)
-        .frame(width: 468)
+    let model = previewModel(.disconnected)
+    let prefs = previewPreferences()
+    QCYAdjustmentsView(
+        model: model,
+        preferences: prefs,
+        contextCoordinator: previewContextCoordinator(model: model, preferences: prefs)
+    )
+    .padding(16)
+    .frame(width: 468)
 }
 #endif
