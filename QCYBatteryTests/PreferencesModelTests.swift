@@ -236,4 +236,11 @@ final class PreferencesModelTests: XCTestCase {
         XCTAssertNil(fixture.model.globalANCHotKey)
         XCTAssertEqual(fixture.model.callRuleScene, .transparency)
     }
+
+    func testQuitShortcutKeepsRunningOnlyWithMenuBarItem() {
+        let fixture = makeFixture()
+        XCTAssertTrue(fixture.model.keepsRunningOnQuitShortcut)
+        fixture.model.setShowInMenuBar(false)
+        XCTAssertFalse(fixture.model.keepsRunningOnQuitShortcut)
+    }
 }

@@ -119,6 +119,9 @@ final class PreferencesModel {
     var canTurnOffMenuBar: Bool { showInDock }
     var canTurnOffDock: Bool { showInMenuBar }
 
+    /// Cmd+Q só fecha as janelas quando o item da barra de menu está ligado: o ícone precisa seguir ativo.
+    var keepsRunningOnQuitShortcut: Bool { showInMenuBar }
+
     @discardableResult
     func setShowInMenuBar(_ value: Bool) -> Bool {
         guard value || showInDock else { return false }
