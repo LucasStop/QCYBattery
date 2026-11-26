@@ -41,6 +41,7 @@ struct QCYAdjustmentsView: View {
                 powerOffRow
                     .disabled(model.areControlsDisabled)
                     .opacity(model.areControlsDisabled && model.pending == nil ? 0.55 : 1)
+                    .dimmed(!model.isPowerOffAvailable)
                 Divider()
                 QCYToneVolumeSlider(volume: model.toneVolume) { volume in
                     model.choose(toneVolume: volume)
@@ -48,6 +49,7 @@ struct QCYAdjustmentsView: View {
                 .padding(12)
                 .disabled(model.areControlsDisabled)
                 .opacity(model.areControlsDisabled && model.pending == nil ? 0.55 : 1)
+                .dimmed(!model.isToneVolumeAvailable)
                 Divider()
                 wearDetectionRow
             }

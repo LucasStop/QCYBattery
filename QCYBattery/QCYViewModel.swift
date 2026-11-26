@@ -161,17 +161,17 @@ final class QCYViewModel {
     }
 
     func setLDAC(_ enabled: Bool) {
-        guard !areControlsDisabled, enabled != isLDACOn else { return }
+        guard !areControlsDisabled, isLDACAvailable, enabled != isLDACOn else { return }
         begin(.ldac(enabled), .setLDAC(enabled))
     }
 
     func setGame(_ enabled: Bool) {
-        guard !areControlsDisabled, enabled != isGameOn else { return }
+        guard !areControlsDisabled, isGameAvailable, enabled != isGameOn else { return }
         begin(.game(enabled), .setLowLatency(enabled))
     }
 
     func choose(effect: QCYSoundEffect) {
-        guard !areControlsDisabled, effect != soundEffect,
+        guard !areControlsDisabled, isSoundEffectAvailable, effect != soundEffect,
               let packet = QCYPacket.setSoundEffect(effect) else { return }
         begin(.soundEffect(effect), packet)
     }
@@ -184,7 +184,7 @@ final class QCYViewModel {
 
     func setBalance(_ value: UInt8) {
         let clamped = min(value, 100)
-        guard !areControlsDisabled, clamped != balance else { return }
+        guard !areControlsDisabled, isBalanceAvailable, clamped != balance else { return }
         begin(.balance(clamped), .setBalance(clamped))
     }
 
@@ -194,12 +194,12 @@ final class QCYViewModel {
     }
 
     func choose(powerOff target: QCYPowerOff) {
-        guard !areControlsDisabled, target != powerOff else { return }
+        guard !areControlsDisabled, isPowerOffAvailable, target != powerOff else { return }
         begin(.powerOff(target), .setPowerOff(target))
     }
 
     func choose(toneVolume target: QCYToneVolume) {
-        guard !areControlsDisabled, target != toneVolume else { return }
+        guard !areControlsDisabled, isToneVolumeAvailable, target != toneVolume else { return }
         begin(.toneVolume(target), .setToneVolume(target))
     }
 
@@ -338,6 +338,12 @@ extension QCYViewModel {
         if case .soundEffect(let target)? = pending { return target }
         return state.soundEffect
     }
+    var isLDACAvailable: Bool { state.isLDACEnabled != nil }
+    var isGameAvailable: Bool { state.isLowLatencyEnabled != nil }
+    var isSoundEffectAvailable: Bool { state.soundEffect != nil }
+    var isBalanceAvailable: Bool { state.balance != nil }
+    var isPowerOffAvailable: Bool { state.powerOff != nil }
+    var isToneVolumeAvailable: Bool { state.toneVolume != nil }
     var isVocalBoostAvailable: Bool { state.ancScene?.mode == 0x03 }
     var isVocalBoostOn: Bool {
         if case .vocalBoost(let enabled)? = pending { return enabled }
