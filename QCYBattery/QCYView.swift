@@ -90,8 +90,8 @@ struct QCYView: View {
         QCYGroup {
             VStack(spacing: 8) {
                 HStack {
-                    QCYRing(side: "qcy.side.left", level: model.state.left, phase: model.phase)
-                    QCYRing(side: "qcy.side.right", level: model.state.right, phase: model.phase)
+                    QCYRing(side: "qcy.side.left", level: model.leftLevel, phase: model.phase)
+                    QCYRing(side: "qcy.side.right", level: model.rightLevel, phase: model.phase)
                 }
                 Text(model.phase == .connected ? "qcy.foot.polling" : "qcy.foot.none")
                     .font(.caption).foregroundStyle(.secondary)
@@ -340,7 +340,7 @@ struct QCYRing: View {
                 Text(caption).font(.system(size: 11)).foregroundStyle(.secondary)
             }
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity).opacity(phase == .connected && percent == nil ? 0.55 : 1)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(side))
         .accessibilityValue(percent.map { Text("\($0)%") } ?? Text("qcy.ring.none"))

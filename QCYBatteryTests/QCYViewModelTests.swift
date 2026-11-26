@@ -95,6 +95,18 @@ final class QCYViewModelTests: XCTestCase {
         XCTAssertNil(model.pending)
     }
 
+    func testEarbudReportingZeroPercentShowsNoReading() async {
+        let (model, link) = makeModel()
+        var only = state()
+        only.right = QCYBatteryLevel(raw: 0)
+        link.onState?(only)
+        await flush()
+
+        XCTAssertNil(model.rightLevel)
+        XCTAssertEqual(model.leftLevel?.percent, 90)
+        XCTAssertEqual(model.menuBarText, "L 90% · R —")
+    }
+
     func testControlsWithoutReadingAreUnavailableAndDoNotWrite() async {
         let (model, link) = makeModel()
         link.onState?(state())
