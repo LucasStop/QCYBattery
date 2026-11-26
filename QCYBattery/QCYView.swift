@@ -122,6 +122,7 @@ struct QCYView: View {
                         .toggleStyle(.switch)
                 }
                 .padding(12)
+                .dimmed(!model.isLDACAvailable)
                 Divider()
                 HStack {
                     QCYLabel(title: "qcy.game.title", hint: "qcy.game.hint")
@@ -131,6 +132,7 @@ struct QCYView: View {
                         .toggleStyle(.switch)
                 }
                 .padding(12)
+                .dimmed(!model.isGameAvailable)
             }
             .disabled(model.areControlsDisabled)
             .opacity(model.areControlsDisabled && model.pending == nil ? 0.55 : 1)

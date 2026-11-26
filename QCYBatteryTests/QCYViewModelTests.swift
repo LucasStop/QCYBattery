@@ -95,9 +95,27 @@ final class QCYViewModelTests: XCTestCase {
         XCTAssertNil(model.pending)
     }
 
-    func testWriteRereadsStateSoSilentSettingsGetConfirmed() async {
+    func testControlsWithoutReadingAreUnavailableAndDoNotWrite() async {
         let (model, link) = makeModel()
         link.onState?(state())
+        await flush()
+
+        XCTAssertFalse(model.isBalanceAvailable)
+        XCTAssertFalse(model.isPowerOffAvailable)
+        XCTAssertFalse(model.isToneVolumeAvailable)
+        XCTAssertFalse(model.isSoundEffectAvailable)
+        model.setBalance(80)
+        model.choose(powerOff: .sixtyMinutes)
+        model.choose(toneVolume: .maximum)
+        XCTAssertTrue(link.sent.isEmpty)
+        XCTAssertNil(model.pending)
+    }
+
+    func testWriteRereadsStateSoSilentSettingsGetConfirmed() async {
+        let (model, link) = makeModel()
+        var initial = state()
+        initial.balance = 50
+        link.onState?(initial)
         await flush()
         let before = link.refreshCount
 

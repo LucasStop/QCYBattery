@@ -33,6 +33,7 @@ struct QCYSoundView: View {
             .padding(12)
             .disabled(model.areControlsDisabled)
             .opacity(model.areControlsDisabled && model.pending == nil ? 0.55 : 1)
+            .dimmed(!model.isSoundEffectAvailable)
         }
     }
 
@@ -51,6 +52,7 @@ struct QCYSoundView: View {
                 .padding(12)
                 .disabled(model.areControlsDisabled)
                 .opacity(model.areControlsDisabled && model.pending == nil ? 0.55 : 1)
+                .dimmed(!model.isBalanceAvailable)
             }
         }
     }
