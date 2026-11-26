@@ -2,6 +2,12 @@
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), em português, uma seção por versão publicada. Cada PR `feat` ou `fix` traz a própria seção, com o que mudou e por quê; os demais tipos não entram. Seções: Adicionado, Alterado, Corrigido, Removido.
 
+## 0.9.3 - 2026-11-25
+
+### Corrigido
+
+- Com um fone só no ouvido, o outro reporta 0% e aparecia como bateria vazia ("R 0%" na barra de menu, anel crítico) e podia disparar o aviso de bateria crítica. Agora 0% vale como "sem leitura": a barra de menu e os anéis mostram "—", o anel fica esmaecido e o aviso ignora aquele lado.
+
 ## 0.9.2 - 2026-11-25
 
 ### Corrigido
