@@ -241,6 +241,134 @@
         }
       }
     },
+    "qcy.adjustments.hotkey.clear": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limpar atalho"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear shortcut"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.hotkey.defined.a11y": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atalho global do ANC: %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Global ANC shortcut: %@"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.hotkey.empty": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gravar atalho…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Record shortcut…"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.hotkey.empty.a11y": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gravar atalho global do ANC"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Record global ANC shortcut"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.hotkey.hint": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterna ANC, Transparência e Normal em qualquer app"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cycles ANC, Transparency, and Off from any app"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.hotkey.recording": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pressione o atalho…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press shortcut…"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.hotkey.recording.a11y": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gravando atalho global do ANC"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recording global ANC shortcut"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.hotkey.title": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atalho global do ANC"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Global ANC shortcut"
+          }
+        }
+      }
+    },
     "qcy.adjustments.powerOff.15": {
       "localizations": {
         "pt-BR": {
@@ -353,6 +481,118 @@
         }
       }
     },
+    "qcy.adjustments.rules.call.hint": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volta à cena anterior ao encerrar"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restores the previous mode when the call ends"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.rules.call.scene": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cena para chamada em andamento"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode for call in progress"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.rules.call.title": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chamada em andamento"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Call in progress"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.rules.focus.active": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ativo · %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active · %@"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.rules.focus.hint": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configure em Ajustes do Sistema > Foco > Filtros de Foco > QCYBattery"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configure in System Settings > Focus > Focus Filters > QCYBattery"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.rules.focus.inactive": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inativo"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inactive"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.rules.focus.title": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foco"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Focus"
+          }
+        }
+      }
+    },
     "qcy.adjustments.section.app": {
       "localizations": {
         "pt-BR": {
@@ -369,6 +609,22 @@
         }
       }
     },
+    "qcy.adjustments.section.appAndShortcut": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App e atalho"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App & shortcut"
+          }
+        }
+      }
+    },
     "qcy.adjustments.section.batteryAlerts": {
       "localizations": {
         "pt-BR": {
@@ -381,6 +637,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Low battery alerts (per side)"
+          }
+        }
+      }
+    },
+    "qcy.adjustments.section.contextRules": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regras de ANC por contexto"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ANC context rules"
           }
         }
       }
@@ -881,6 +1153,54 @@
         }
       }
     },
+    "qcy.hotkey.error.alreadyRegistered": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este atalho já está em uso por outro app ou pelo macOS."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This shortcut is already in use by another app or macOS."
+          }
+        }
+      }
+    },
+    "qcy.hotkey.error.missingModifiers": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use pelo menos uma tecla modificadora (⌘, ⌥, ⌃ ou ⇧)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Include at least one modifier key (⌘, ⌥, ⌃, or ⇧)."
+          }
+        }
+      }
+    },
+    "qcy.hotkey.error.registrationFailed": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível registrar o atalho global."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not register the global shortcut."
+          }
+        }
+      }
+    },
     "qcy.intent.battery.entity": {
       "localizations": {
         "pt-BR": {
@@ -957,6 +1277,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "The earbuds did not respond to the command"
+          }
+        }
+      }
+    },
+    "qcy.intent.focusFilter.description": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplica o modo de cancelamento de ruído no QCY MeloBuds Pro enquanto este Foco estiver ativo e restaura o anterior ao desativar."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applies the noise cancellation mode on your QCY MeloBuds Pro while this Focus is active and restores the previous mode when it ends."
+          }
+        }
+      }
+    },
+    "qcy.intent.focusFilter.inactive": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem alteração"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No change"
+          }
+        }
+      }
+    },
+    "qcy.intent.focusFilter.title": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Definir modo de ruído no Foco"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set noise mode during Focus"
           }
         }
       }

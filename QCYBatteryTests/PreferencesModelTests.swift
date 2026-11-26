@@ -201,4 +201,39 @@ final class PreferencesModelTests: XCTestCase {
         fixture.model.setCriticalBatteryAlert(true)
         XCTAssertEqual(fixture.notifier.authorizationRequests, 1)
     }
+
+    func testContextRuleDefaultsAndRoundTripPersistence() {
+        let first = makeFixture()
+        XCTAssertNil(first.model.globalANCHotKey)
+        XCTAssertTrue(first.model.callRuleEnabled)
+        XCTAssertEqual(first.model.callRuleScene, .transparency)
+        XCTAssertEqual(first.model.contextRuleSettings, .default)
+
+        let shortcut = MacroKeyShortcut(keyCode: 0, modifiers: [.command, .shift])
+        first.model.setGlobalANCHotKey(shortcut)
+        first.model.setCallRuleEnabled(false)
+        first.model.setCallRuleScene(.normal)
+
+        let second = makeFixture()
+        XCTAssertEqual(second.model.globalANCHotKey, shortcut)
+        XCTAssertFalse(second.model.callRuleEnabled)
+        XCTAssertEqual(second.model.callRuleScene, .normal)
+        XCTAssertEqual(
+            second.model.contextRuleSettings,
+            ContextRuleSettings(callEnabled: false, callScene: .normal)
+        )
+
+        second.model.setGlobalANCHotKey(nil)
+        let third = makeFixture()
+        XCTAssertNil(third.model.globalANCHotKey)
+    }
+
+    func testCorruptedGlobalHotKeyAndInvalidCallSceneRecoverToDefaults() {
+        defaults.set(Data("not-json".utf8), forKey: "preferences.globalANCHotKey")
+        defaults.set("unknown-scene", forKey: "preferences.contextRule.call.scene")
+
+        let fixture = makeFixture()
+        XCTAssertNil(fixture.model.globalANCHotKey)
+        XCTAssertEqual(fixture.model.callRuleScene, .transparency)
+    }
 }

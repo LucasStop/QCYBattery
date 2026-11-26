@@ -12,8 +12,12 @@ Estado do fone (bateria, firmware, controles, gestos e ajustes) vem do fone a ca
 | `preferences.showInDock` | `Bool` | `true` | Visibilidade no Dock e Cmd+Tab (US-06) |
 | `preferences.lowBatteryAlert` | `Bool` | `true` | Alerta de bateria baixa em 20% por lado (US-11) |
 | `preferences.criticalBatteryAlert` | `Bool` | `true` | Alerta crítico de bateria em 10% por lado (US-11) |
+| `preferences.globalANCHotKey` | `Data` (JSON `MacroKeyShortcut`) | ausente (`nil`) | Atalho global de ciclo de ANC (`keyCode` + `modifiers`); ausente = nenhum atalho registrado (US-10) |
+| `preferences.contextRule.call.enabled` | `Bool` | `true` | Ativa ou desativa a regra de ANC durante chamada em andamento; desligada mantém o monitor CoreAudio inerte (US-10) |
+| `preferences.contextRule.call.scene` | `String` (`QCYANCChoice.rawValue`) | `"transparency"` | Cena aplicada durante chamada em andamento: `"anc"`, `"normal"` ou `"transparency"` (US-10) |
 
-- Migração e retenção de preferências: chaves ausentes assumem o padrão `true`; se `showInMenuBar` e `showInDock` estiverem ambos `false`, o app recupera mantendo a barra de menu ligada.
+- Migração e retenção de preferências: chaves ausentes assumem o padrão da tabela; se `showInMenuBar` e `showInDock` estiverem ambos `false`, o app recupera mantendo a barra de menu ligada; `globalANCHotKey` corrompido ou sem modificadores volta a `nil`; `contextRule.call.scene` desconhecido volta a `"transparency"`.
+- Estado em memória das regras de contexto (US-10): a pilha de contextos ativos, a cena anterior salva para restauração e o último filtro de Foco recebido via `SetFocusFilterIntent` vivem apenas em memória no `ContextRuleCoordinator` / `ContextRulePolicy` e não sobrevivem a reinício do app.
 
 ## Macros no Mac (`~/Library/Application Support/QCYBattery/macros.json`)
 

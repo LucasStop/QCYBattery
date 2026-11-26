@@ -66,7 +66,7 @@ struct QCYIntentRunner {
 
     // MARK: - Espera e confirmação
 
-    private func waitForConnection() async throws {
+    func waitForConnection() async throws {
         if model.phase == .connected { return }
         let deadline = ContinuousClock.now + connectionTimeout
         while model.phase != .connected {

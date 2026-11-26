@@ -36,7 +36,8 @@ final class SMAppServiceLaunchAtLogin: LaunchAtLoginControlling {
     }
 }
 
-/// Preferências de presença (barra de menu e Dock), abertura no login (US-06) e alertas de bateria baixa (US-11).
+/// Preferências de presença (barra de menu e Dock), abertura no login (US-06), atalho global e regras de ANC por
+/// contexto (US-10) e alertas de bateria baixa (US-11).
 /// Pelo menos uma das visibilidades (barra de menu ou Dock) permanece sempre ativa.
 @MainActor
 @Observable
@@ -46,6 +47,9 @@ final class PreferencesModel {
         static let showInDock = "preferences.showInDock"
         static let lowBatteryAlert = "preferences.lowBatteryAlert"
         static let criticalBatteryAlert = "preferences.criticalBatteryAlert"
+        static let globalANCHotKey = "preferences.globalANCHotKey"
+        static let callRuleEnabled = "preferences.contextRule.call.enabled"
+        static let callRuleScene = "preferences.contextRule.call.scene"
     }
 
     private(set) var showInMenuBar: Bool
@@ -53,6 +57,9 @@ final class PreferencesModel {
     private(set) var launchAtLogin: Bool
     private(set) var lowBatteryAlertEnabled: Bool
     private(set) var criticalBatteryAlertEnabled: Bool
+    private(set) var globalANCHotKey: MacroKeyShortcut?
+    private(set) var callRuleEnabled: Bool
+    private(set) var callRuleScene: QCYANCChoice
 
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let policyApplier: any ActivationPolicyApplying
@@ -83,12 +90,25 @@ final class PreferencesModel {
         self.launchAtLogin = loginController.isEnabled
         self.lowBatteryAlertEnabled = defaults.object(forKey: Key.lowBatteryAlert) as? Bool ?? true
         self.criticalBatteryAlertEnabled = defaults.object(forKey: Key.criticalBatteryAlert) as? Bool ?? true
+        self.globalANCHotKey = Self.decodeHotKey(from: defaults.data(forKey: Key.globalANCHotKey))
+        self.callRuleEnabled = defaults.object(forKey: Key.callRuleEnabled) as? Bool
+            ?? ContextRuleSettings.default.callEnabled
+        let rawCallScene = defaults.string(forKey: Key.callRuleScene)
+        self.callRuleScene = rawCallScene.flatMap(QCYANCChoice.init(rawValue:))
+            ?? ContextRuleSettings.default.callScene
     }
 
     var batteryAlertSettings: BatteryAlertSettings {
         BatteryAlertSettings(
             lowEnabled: lowBatteryAlertEnabled,
             criticalEnabled: criticalBatteryAlertEnabled
+        )
+    }
+
+    var contextRuleSettings: ContextRuleSettings {
+        ContextRuleSettings(
+            callEnabled: callRuleEnabled,
+            callScene: callRuleScene
         )
     }
 
@@ -149,9 +169,40 @@ final class PreferencesModel {
         }
     }
 
+    func setGlobalANCHotKey(_ shortcut: MacroKeyShortcut?) {
+        guard shortcut != globalANCHotKey else { return }
+        globalANCHotKey = shortcut
+        if let shortcut, let data = try? JSONEncoder().encode(shortcut) {
+            defaults.set(data, forKey: Key.globalANCHotKey)
+        } else {
+            defaults.removeObject(forKey: Key.globalANCHotKey)
+        }
+    }
+
+    func setCallRuleEnabled(_ enabled: Bool) {
+        guard enabled != callRuleEnabled else { return }
+        callRuleEnabled = enabled
+        defaults.set(enabled, forKey: Key.callRuleEnabled)
+    }
+
+    func setCallRuleScene(_ scene: QCYANCChoice) {
+        guard scene != callRuleScene else { return }
+        callRuleScene = scene
+        defaults.set(scene.rawValue, forKey: Key.callRuleScene)
+    }
+
     private func requestNotificationAuthorizationIfNeeded() {
         guard !hasRequestedNotificationAuthorization else { return }
         hasRequestedNotificationAuthorization = true
         notifier.requestAuthorization()
+    }
+
+    private static func decodeHotKey(from data: Data?) -> MacroKeyShortcut? {
+        guard let data,
+              let decoded = try? JSONDecoder().decode(MacroKeyShortcut.self, from: data),
+              !decoded.modifiers.isEmpty else {
+            return nil
+        }
+        return decoded
     }
 }

@@ -11,7 +11,9 @@ struct QCYBatteryApp: App {
 
     init() {
         let model = sharedModel
+        let contextCoordinator = sharedContextCoordinator
         AppDependencyManager.shared.add(dependency: model)
+        AppDependencyManager.shared.add(dependency: contextCoordinator)
     }
 
     private var menuBarInserted: Binding<Bool> {
@@ -26,7 +28,8 @@ struct QCYBatteryApp: App {
             QCYView(
                 model: sharedModel,
                 preferences: sharedPreferences,
-                macroStore: sharedMacroStore
+                macroStore: sharedMacroStore,
+                contextCoordinator: sharedContextCoordinator
             )
         }
         .windowResizability(.contentSize)
@@ -73,10 +76,12 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
         sharedPreferences.applyActivationPolicy()
         sharedModel.start()
         sharedMacroCoordinator.start()
+        sharedContextCoordinator.start()
     }
 
     func applicationWillTerminate(_ notification: Notification) {
         guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
+        sharedContextCoordinator.stop()
         sharedMacroCoordinator.stop()
     }
 }
@@ -92,4 +97,8 @@ private final class AppDelegate: NSObject, NSApplicationDelegate {
     notifier: sharedNotifier,
     alertSettings: { sharedPreferences.batteryAlertSettings },
     macroStore: sharedMacroStore
+)
+@MainActor private let sharedContextCoordinator = ContextRuleCoordinator(
+    model: sharedModel,
+    preferences: sharedPreferences
 )

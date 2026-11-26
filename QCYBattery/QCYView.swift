@@ -12,17 +12,20 @@ struct QCYView: View {
     @Bindable var model: QCYViewModel
     @Bindable var preferences: PreferencesModel
     @Bindable var macroStore: MacroStore
+    @Bindable var contextCoordinator: ContextRuleCoordinator
     @State private var selectedTab: QCYTab
 
     init(
         model: QCYViewModel,
         preferences: PreferencesModel,
         macroStore: MacroStore? = nil,
+        contextCoordinator: ContextRuleCoordinator? = nil,
         selectedTab: QCYTab = .status
     ) {
         self.model = model
         self.preferences = preferences
         self.macroStore = macroStore ?? model.macroStore
+        self.contextCoordinator = contextCoordinator ?? .inert(model: model, preferences: preferences)
         _selectedTab = State(initialValue: selectedTab)
     }
 
@@ -31,17 +34,11 @@ struct QCYView: View {
             QCYTabBar(selection: $selectedTab)
             switch selectedTab {
             case .status:
-                header
-                batteryGroup
-                QCYStatusBanner(model: model)
-                controlsGroup
-                detailsGroup
-            case .sound:
-                QCYSoundView(model: model)
-            case .touch:
-                QCYTouchView(model: model, macroStore: macroStore)
+                header; batteryGroup; QCYStatusBanner(model: model); controlsGroup; detailsGroup
+            case .sound: QCYSoundView(model: model)
+            case .touch: QCYTouchView(model: model, macroStore: macroStore)
             case .adjustments:
-                QCYAdjustmentsView(model: model, preferences: preferences)
+                QCYAdjustmentsView(model: model, preferences: preferences, contextCoordinator: contextCoordinator)
             }
         }
         .padding(16)
