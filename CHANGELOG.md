@@ -2,6 +2,12 @@
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), em português, uma seção por versão publicada. Cada PR `feat` ou `fix` traz a própria seção, com o que mudou e por quê; os demais tipos não entram. Seções: Adicionado, Alterado, Corrigido, Removido.
 
+## 0.10.1 - 2026-11-25
+
+### Corrigido
+
+- Com "Mostrar na barra de menu" ligado, Cmd+Q e fechar a janela não encerram mais o app: só fecham as janelas e o ícone da barra de menu continua ativo, como a configuração promete. "Encerrar" no popover, e Cmd+Q com a barra de menu desligada, encerram de verdade.
+
 ## 0.10.0 - 2026-11-25
 
 ### Adicionado
