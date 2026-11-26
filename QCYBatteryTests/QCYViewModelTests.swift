@@ -11,7 +11,9 @@ private final class FakeLink: QCYLink, @unchecked Sendable {
     private(set) var sent: [QCYPacket] = []
     private(set) var refreshCount = 0
 
-    func start() {}
+    private(set) var startCount = 0
+
+    func start() { startCount += 1 }
     func stop() {}
     func refresh() { refreshCount += 1 }
     func refreshKeyMap() {}
@@ -105,6 +107,21 @@ final class QCYViewModelTests: XCTestCase {
         XCTAssertNil(model.rightLevel)
         XCTAssertEqual(model.leftLevel?.percent, 90)
         XCTAssertEqual(model.menuBarLabel, "L 90%")
+    }
+
+    func testSearchRestartsOnItsOwnWhileDisconnectedOnly() async {
+        let link = FakeLink()
+        let model = QCYViewModel(link: link, settleTimeout: .milliseconds(20), rescanInterval: .milliseconds(40))
+        model.start()
+        try? await Task.sleep(for: .milliseconds(200))
+        XCTAssertGreaterThan(link.startCount, 1)
+
+        link.onState?(state())
+        await flush()
+        let whileConnected = link.startCount
+        try? await Task.sleep(for: .milliseconds(150))
+        XCTAssertEqual(link.startCount, whileConnected)
+        model.stop()
     }
 
     func testControlsWithoutReadingAreUnavailableAndDoNotWrite() async {

@@ -18,38 +18,6 @@ protocol QCYLink: AnyObject, Sendable {
 
 extension QCYClient: QCYLink {}
 
-/// Cena de ANC que a tela oferece. O `0x17` é a única via de escrita (o `0x0C` não responde no MeloBuds Pro);
-/// os bytes são os medidos em `docs/QCY.md` §5.
-enum QCYANCChoice: String, CaseIterable, Codable, Equatable, Hashable, Sendable {
-    case anc, normal, transparency
-
-    /// Ordem do ciclo do atalho global (US-10): ANC -> Transparência -> Normal -> ANC.
-    var nextInCycle: QCYANCChoice {
-        switch self {
-        case .anc: .transparency
-        case .transparency: .normal
-        case .normal: .anc
-        }
-    }
-
-    var packet: QCYPacket {
-        switch self {
-        case .anc: .ancSetting(mode: 0x01, subScene: 0x02, noiseValue: 0x03)
-        case .normal: .ancSetting(mode: 0x02, subScene: 0x00, noiseValue: 0x00)
-        case .transparency: .ancSetting(mode: 0x03, subScene: 0x02, noiseValue: 0x00)
-        }
-    }
-
-    init?(scene: QCYANScene) {
-        switch scene.mode {
-        case 0x01: self = .anc
-        case 0x02: self = .normal
-        case 0x03: self = .transparency
-        default: return nil
-        }
-    }
-}
-
 /// Escrita enviada e ainda sem eco do fone.
 enum QCYPending: Equatable, Sendable {
     case anc(QCYANCChoice)
@@ -79,19 +47,21 @@ final class QCYViewModel {
     let isReadOnly: Bool
     let macroStore: MacroStore
 
-    @ObservationIgnored private let link: any QCYLink
+    @ObservationIgnored let link: any QCYLink
     @ObservationIgnored private let notifier: any BatteryNotifying
     @ObservationIgnored private let alertSettings: @MainActor () -> BatteryAlertSettings
     @ObservationIgnored private let writeTimeout: Duration
     @ObservationIgnored private let settleTimeout: Duration
     @ObservationIgnored private let pollInterval: Duration
+    @ObservationIgnored let rescanInterval: Duration
     @ObservationIgnored private var alertPolicy = BatteryAlertPolicy()
-    @ObservationIgnored private var isLinked = false
+    @ObservationIgnored var isLinked = false
     @ObservationIgnored private var lastTransparencyLevel: UInt8 = 3
     @ObservationIgnored private var writeTask: Task<Void, Never>?
     @ObservationIgnored private var readbackTask: Task<Void, Never>?
     @ObservationIgnored private var settleTask: Task<Void, Never>?
     @ObservationIgnored private var pollTask: Task<Void, Never>?
+    @ObservationIgnored var rescanTask: Task<Void, Never>?
 
     init(
         link: any QCYLink,
@@ -99,6 +69,7 @@ final class QCYViewModel {
         writeTimeout: Duration = .seconds(3),
         settleTimeout: Duration = .seconds(3),
         pollInterval: Duration = .seconds(30),
+        rescanInterval: Duration = .seconds(10),
         notifier: any BatteryNotifying = NoOpBatteryNotifier(),
         alertSettings: @escaping @MainActor () -> BatteryAlertSettings = { .allEnabled },
         macroStore: MacroStore = .inMemory()
@@ -111,6 +82,7 @@ final class QCYViewModel {
         self.writeTimeout = writeTimeout
         self.settleTimeout = settleTimeout
         self.pollInterval = pollInterval
+        self.rescanInterval = rescanInterval
         link.onState = { [weak self] state in Task { @MainActor in self?.receive(state) } }
         link.onAdvertisement = { [weak self] advertisement in Task { @MainActor in self?.receive(advertisement) } }
         link.onReady = { [weak self] in Task { @MainActor in self?.linkReady() } }
@@ -135,10 +107,12 @@ final class QCYViewModel {
                 }
             }
         }
+        startRescanLoop()
     }
 
     func stop() {
         pollTask?.cancel()
+        rescanTask?.cancel()
         writeTask?.cancel()
         readbackTask?.cancel()
         settleTask?.cancel()
